@@ -7,9 +7,7 @@
 
 ## 🧑🏻‍💻 Team Introduction & Members 
 
-> Team name : 윤슬 [ NLP 11조 ] 
-
-![](https://img.shields.io/badge/github-black.svg?&style=round&logo=github)
+> Team name : 윤슬 [ NLP 08조 ] 
 
 ### 👨🏼‍💻 Members
 강민재|김주원|김태민|신혁준|윤상원|
@@ -102,9 +100,13 @@ KLUE-RE evaluation metric을 그대로 재현했습니다.
 
 - micro-precision과 micro-recall의 조화 평균이며, 각 샘플에 동일한 importance를 부여해, 샘플이 많은 클래스에 더 많은 가중치를 부여합니다. 데이터 분포상 많은 부분을 차지하고 있는 no_relation class는 제외하고 F1 score가 계산 됩니다.
 
+![image](https://user-images.githubusercontent.com/81630351/236133515-3bad534f-cf01-4234-8b59-df1e9a74b4d5.png)
+
+
 ### AUPRC
 
 - x축은 Recall, y축은 Precision이며, 모든 class에 대한 평균적인 AUPRC로 계산해 score를 측정 합니다. imbalance한 데이터에 유용한 metric 입니다.
+![image](https://user-images.githubusercontent.com/81630351/236133318-2c4fca5b-c14e-49bc-bd68-90f4b9af8b04.png)
 
 - 위 그래프의 예시는 scikit-learn의 Precision-Recall 그래프의 예시 입니다. 그림의 예시와 같이 class 0, 1, 2의 area(면적 값)을 각각 구한 후, 평균을 계산한 결과를 AUPRC score로 사용합니다.
 ## 📁 프로젝트 구조
