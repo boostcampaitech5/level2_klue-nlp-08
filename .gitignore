@@ -1,0 +1,5 @@
+dataset/*
+.vscode-server/*
+code/*
+.cache/*
+.donet/*
