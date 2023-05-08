@@ -1,3 +1,7 @@
 dataset/*
 output/*
 code/*
+prediction/*
+model/*
+lightning_logs/*
+__pycache__/
