@@ -14,7 +14,7 @@ from utils import klue_re_micro_f1
 
 
 class ERNet(pl.LightningModule):
-    def __init__(self, learning_rate, weight_decay, model_name = "klue/bert-base"):
+    def __init__(self, learning_rate : float, weight_decay : float, model_name : str = "klue/bert-base"):
         super().__init__()
 
         self.model_config =  AutoConfig.from_pretrained(model_name)

@@ -1,5 +1,6 @@
 import os
 import pickle
+from typing import Dict, List
 
 import numpy as np
 import pandas as pd
@@ -53,7 +54,7 @@ class ERDataModule(pl.LightningDataModule):
         out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity,'object_entity':object_entity,'label':dataset['label'],})
         return out_dataset
 
-    def tokenized_dataset(self, dataset : pd.DataFrame, tokenizer: AutoTokenizer) -> dict:
+    def tokenized_dataset(self, dataset : pd.DataFrame, tokenizer: AutoTokenizer) -> Dict:
         """ tokenizer에 따라 sentence를 tokenizing 합니다."""
         concat_entity = []
         for e01, e02 in zip(dataset['subject_entity'], dataset['object_entity']):
@@ -76,7 +77,7 @@ class ERDataModule(pl.LightningDataModule):
             dict_label_to_num = pickle.load(f)
         return dict_label_to_num[label]
 
-    def make_dataset(self, df : pd.DataFrame, state : str) -> dict:
+    def make_dataset(self, df : pd.DataFrame, state : str) -> List[Dict]:
         result = []
         df_preprocessed = self.preprocessing_dataset(dataset = df)
         df_tokenized = self.tokenized_dataset(dataset=df_preprocessed, tokenizer=self.tokenizer)
