@@ -49,7 +49,7 @@ if __name__ == "__main__":
         model = ERNet(model_name=MODEL_NAME, learning_rate=wandb.config.learning_rate, weight_decay=wandb.config.weight_decay)
 
         wandb_logger = WandbLogger()
-        trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{MODEL_NAME.replace('/', '_')}/{now.strftime('%Y-%m-%d %H:%M:%S')}/", filename="{epoch}-{val_micro_f1}", monitor="val_micro_f1"), max_epochs = wandb.config.epochs, logger=wandb_logger)
+        trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{MODEL_NAME.replace('/', '_')}/{now.strftime('%Y-%m-%d %H:%M:%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1"), max_epochs = wandb.config.epochs, logger=wandb_logger)
         trainer.fit(model = model, train_dataloaders=dataloader)
 
     wandb.agent(sweep_id=sweep_id, function=wandb_tuning, count=1)
