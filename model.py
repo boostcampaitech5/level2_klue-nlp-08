@@ -1,5 +1,6 @@
 import os
 import pickle
+import statistics
 from typing import List
 
 import pandas as pd
@@ -42,7 +43,7 @@ class ERNet(pl.LightningModule):
         y_hat = self(x).logits
         loss = F.cross_entropy(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
-        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
+        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, _):
@@ -52,7 +53,7 @@ class ERNet(pl.LightningModule):
 
         pred = y_hat.argmax(dim=1)
         correct = pred.eq(y.view_as(pred)).sum().item()
-        micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu())
+        micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu()).item()
 
         preds = {"val_micro_f1": micro_f1, "val_loss" : loss, "correct" : correct}
         self.validation_step_outputs.append(preds)
@@ -60,7 +61,7 @@ class ERNet(pl.LightningModule):
 
     def on_validation_epoch_end(self):
         avg_loss = torch.stack([x['val_loss'] for x in self.validation_step_outputs]).mean()
-        avg_f1 = torch.stack([x['val_micro_f1'] for x in self.validation_step_outputs]).mean()
+        avg_f1 = statistics.mean([x['val_micro_f1'] for x in self.validation_step_outputs])
         self.log_dict({'val_micro_f1': avg_f1, 'val_loss': avg_loss})
         print(f"{{Epoch {self.current_epoch} val_micro_f1': {avg_f1} val_loss : {avg_loss}}}")
         self.validation_step_outputs.clear()

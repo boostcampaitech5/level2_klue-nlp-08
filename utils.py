@@ -1,4 +1,4 @@
-import sklearn
+import sklearn.metrics
 
 
 def klue_re_micro_f1(preds, labels):
