@@ -24,6 +24,8 @@ class ERNet(pl.LightningModule):
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
 
+        self.train_step = 0
+
         self.validation_step_outputs = []
         self.output_pred = []
         self.output_prob = []
@@ -43,8 +45,14 @@ class ERNet(pl.LightningModule):
         y_hat = self(x).logits
         loss = F.cross_entropy(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
-        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
+        if self.train_step % 100 == 0:
+            print(f"learning_rate : {self.optimizers().optimizer.param_groups[0]['lr']}")
+        self.train_step += 1
         return loss
+
+    def on_train_epoch_end(self):
+        self.train_step = 0
 
     def validation_step(self, batch, _):
         y, x = batch.pop("labels"), batch
