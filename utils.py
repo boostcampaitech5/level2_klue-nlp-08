@@ -1,3 +1,6 @@
+import argparse
+
+import omegaconf
 import sklearn.metrics
 
 
@@ -18,3 +21,11 @@ def klue_re_micro_f1(preds, labels):
     label_indices = list(range(len(label_list)))
     label_indices.remove(no_relation_label_idx)
     return sklearn.metrics.f1_score(labels, preds, average="micro", labels=label_indices) * 100.0
+
+def config_parser():
+   parser = argparse.ArgumentParser()
+   parser.add_argument('--config', type = str, default = 'config/default.yaml')
+   args = parser.parse_args()
+
+   config = omegaconf.OmegaConf.load(args.config)
+   return config

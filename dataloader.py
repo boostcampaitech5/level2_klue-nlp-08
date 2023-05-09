@@ -10,7 +10,7 @@ from transformers import AutoTokenizer
 
 
 class ERDataModule(pl.LightningDataModule):
-    def __init__(self, dataset_dir: str, tokenizer : AutoTokenizer, batch_size : int):
+    def __init__(self, dataset_dir: str, tokenizer : AutoTokenizer, batch_size : int = 16):
         super().__init__()
         self.dataset_dir = dataset_dir
         self.tokenizer = tokenizer

@@ -15,14 +15,19 @@ from utils import klue_re_micro_f1
 
 
 class ERNet(pl.LightningModule):
-    def __init__(self, learning_rate : float, weight_decay : float, model_name : str = "klue/bert-base"):
+    def __init__(self, config, wandb_config=None):
         super().__init__()
 
-        self.model_config =  AutoConfig.from_pretrained(model_name)
+        if wandb_config == None:
+            self.learning_rate = config["train"]["learning_rate"]
+            self.weight_decay = config["train"]["weight_decay"]
+        else:
+            self.learning_rate = wandb_config.learning_rate
+            self.weight_decay = wandb_config.weight_decay
+
+        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
         self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, config=self.model_config)
-        self.learning_rate = learning_rate
-        self.weight_decay = weight_decay
+        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
 
         self.train_step = 0
 
