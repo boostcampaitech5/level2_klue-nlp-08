@@ -27,6 +27,6 @@ if __name__ == "__main__":
 
     now = datetime.now(pytz.timezone("Asia/Seoul"))
 
-    trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{config['model']['model_name'].replace('/', '_')}/{now.strftime('%Y-%m-%d %H:%M:%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1", mode="max"), max_epochs = config["train"]["num_train_epoch"])
+    trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{config['model']['model_name'].replace('/', '_')}/{now.strftime('%Y-%m-%d %H.%M.%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1", mode="max"), max_epochs = config["train"]["num_train_epoch"])
     trainer.fit(model=model, train_dataloaders=dataloader)
 

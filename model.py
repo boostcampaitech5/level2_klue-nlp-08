@@ -11,7 +11,7 @@ from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
-from utils import klue_re_micro_f1
+from utils import klue_re_micro_f1, lr_scheduler
 
 
 class ERNet(pl.LightningModule):
@@ -28,6 +28,7 @@ class ERNet(pl.LightningModule):
         self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
         self.model_config.num_labels = 30
         self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        self.lr_scheduler_type = config["train"]["lr_scheduler"]
 
         self.train_step = 0
 
@@ -42,7 +43,7 @@ class ERNet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
-        scheduler = StepLR(optimizer, step_size=1)
+        scheduler = lr_scheduler(lr_scheduler_type=self.lr_scheduler_type, optimizer=optimizer)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):

@@ -20,4 +20,8 @@ wandb :
 
 path:
   model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
+  train : ./dataset/train/train.csv
+  dev : ./dataset/train/dev.csv
+  train : ./dataset/test/test_data.csv
+
   

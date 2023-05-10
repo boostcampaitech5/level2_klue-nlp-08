@@ -10,17 +10,20 @@ from transformers import AutoTokenizer
 
 
 class ERDataModule(pl.LightningDataModule):
-    def __init__(self, dataset_dir: str, tokenizer : AutoTokenizer, batch_size : int = 16):
+    def __init__(self, config, tokenizer : AutoTokenizer):
         super().__init__()
-        self.dataset_dir = dataset_dir
+        self.train_dir = config["path"]["train"]
+        self.dev_dir = config["path"]["dev"]
+        self.test_dir = config["path"]["test"]
+        self.train_batch_size = config["data"]["train_batch_size"]
+        self.val_batch_size = config["data"]["val_batch_size"]
+        self.test_batch_size = config["data"]["test_batch_size"]
         self.tokenizer = tokenizer
-        self.batch_size = batch_size
+        self.tokenizer_max_len = config["data"]["tokenizer_max_len"]
 
     def setup(self, stage: str):
-        df_dataset = pd.read_csv(self.dataset_dir)
-
         if stage == "fit":
-            df_train, df_val = df_dataset[:25976], df_dataset[25976:]
+            df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(self.dev_dataset_dir)
             self.train_data = self.make_dataset(df_train, state = "train")
             self.val_data = self.make_dataset(df_val, state = "val")
             # df_train, df_val = [self.preprocessing_dataset(dataset = df_train), self.preprocessing_dataset(dataset = df_val)]
@@ -30,16 +33,17 @@ class ERDataModule(pl.LightningDataModule):
             # self.val_data['labels'] = self.label_to_num(df_val['label'].values)
 
         elif stage == "test":
-            self.test_data = self.make_dataset(df_dataset, state = "test")
+            df_test = pd.read_csv(self.test_dataset_dir)
+            self.test_data = self.make_dataset(df_test, state = "test")
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_data, batch_size=self.batch_size, shuffle = True)
+        return DataLoader(self.train_data, batch_size=self.train_batch_size, shuffle = True)
 
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_data, batch_size=self.batch_size)
+        return DataLoader(self.val_data, batch_size=self.val_batch_size)
 
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_data, batch_size=self.batch_size)
+        return DataLoader(self.test_data, batch_size=self.test_batch_size)
 
     def preprocessing_dataset(self, dataset : pd.DataFrame) -> pd.DataFrame:
         """ 처음 불러온 csv 파일을 원하는 형태의 DataFrame으로 변경 시켜줍니다."""
@@ -67,7 +71,7 @@ class ERDataModule(pl.LightningDataModule):
             return_tensors="pt",
             padding=True,
             truncation=True,
-            max_length=256,
+            max_length=self.tokenizer_max_len,
             add_special_tokens=True,
             )
         return tokenized_sentences
