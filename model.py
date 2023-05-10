@@ -41,7 +41,7 @@ class ERNet(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         scheduler = StepLR(optimizer, step_size=1)
         return [optimizer], [scheduler]
 
