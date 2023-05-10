@@ -49,11 +49,11 @@ if __name__ == "__main__":
     def wandb_tuning():
         wandb.init()
         dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
-        dataloader = ERDataModule(dataset_dir=dataset_dir, tokenizer=tokenizer, batch_size=wandb.config.batch_size)
+        dataloader = ERDataModule(config=config, tokenizer=tokenizer, wandb_batch_size=wandb.config.batch_size)
         model = ERNet(config=config, wandb_config=wandb.config)
 
         wandb_logger = WandbLogger()
-        trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{MODEL_NAME.replace('/', '_')}/{now.strftime('%Y-%m-%d %H.%M.%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1"), max_epochs = wandb.config.epochs, logger=wandb_logger)
+        trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{MODEL_NAME.replace('/', '_')}/{now.strftime('%Y-%m-%d %H.%M.%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1", mode="max"), max_epochs = wandb.config.epochs, logger=wandb_logger)
         trainer.fit(model = model, train_dataloaders=dataloader)
 
     wandb.agent(sweep_id=sweep_id, function=wandb_tuning, count=1)
