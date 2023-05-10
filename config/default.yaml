@@ -8,7 +8,7 @@ data :
 
 train :
   num_train_epoch : 5
-  weight_decay : 0.0004
+  weight_decay : 0.01
   learning_rate : 5e-5
   lr_scheduler : stepLR
 
@@ -20,8 +20,8 @@ wandb :
 
 path:
   model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
-  train : ./dataset/train/train.csv
-  dev : ./dataset/train/val.csv
-  test : ./dataset/test/test.csv
+  train : ./dataset/train/new_train.csv
+  dev : ./dataset/train/new_dev.csv
+  test : ./dataset/test/test_data.csv
 
   
