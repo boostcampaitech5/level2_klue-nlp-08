@@ -1,3 +1,10 @@
 dataset/*
 output/*
 code/*
+prediction/*
+model/*
+lightning_logs/*
+__pycache__/
+checkpoint/*
+wandb/*
+my_code/*
