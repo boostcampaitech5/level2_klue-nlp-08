@@ -10,17 +10,20 @@ import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
+from adabelief_pytorch import AdaBelief
+from model_list import CustomBertForSequenceClassification
 
 from utils import klue_re_micro_f1
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 class ERNet(pl.LightningModule):
-    def __init__(self, learning_rate : float, weight_decay : float, model_name : str = "klue/bert-base"):
+    def __init__(self, learning_rate : float, weight_decay : float, model_name : str = "klue/bert-base",state=None):
         super().__init__()
 
-        self.model_config =  AutoConfig.from_pretrained(model_name)
+        self.model_config = AutoConfig.from_pretrained(model_name)
         self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, config=self.model_config)
+        self.model = CustomBertForSequenceClassification.from_pretrained(model_name, config=self.model_config,state=state).to(device)
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
 
@@ -29,12 +32,13 @@ class ERNet(pl.LightningModule):
         self.output_prob = []
 
     def forward(self, x):
-        x = self.model(**x)
 
+        x = self.model(**x)
+        #x = self.model(input_ids=x['input_ids'], token_type_ids=x['token_type_ids'],attention_mask=x['attention_mask'],index_ids=x['index_ids'])
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
+        optimizer = AdaBelief(self.parameters(), lr=self.learning_rate,weight_decouple=True,weight_decay=self.weight_decay)
         scheduler = StepLR(optimizer, step_size=1)
         return [optimizer], [scheduler]
 
@@ -80,7 +84,7 @@ class ERNet(pl.LightningModule):
         test_id = list(range(len(self.output_pred)))
         output = pd.DataFrame({'id':test_id,'pred_label':pred_answer,'probs':self.output_prob})
         os.makedirs("prediction", exist_ok=True)
-        output.to_csv('./prediction/submission.csv', index=False)
+        output.to_csv('./prediction/submission_re.csv', index=False)
 
     def num_to_label(self, label : List[int]) -> List[str]:
         """
@@ -93,3 +97,4 @@ class ERNet(pl.LightningModule):
             origin_label.append(dict_num_to_label[v])
         
         return origin_label
+
