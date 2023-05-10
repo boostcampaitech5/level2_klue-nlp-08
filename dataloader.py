@@ -10,12 +10,15 @@ from transformers import AutoTokenizer
 
 
 class ERDataModule(pl.LightningDataModule):
-    def __init__(self, config, tokenizer : AutoTokenizer):
+    def __init__(self, config, tokenizer : AutoTokenizer, wandb_batch_size : int =None):
         super().__init__()
-        self.train_dir = config["path"]["train"]
-        self.dev_dir = config["path"]["dev"]
-        self.test_dir = config["path"]["test"]
-        self.train_batch_size = config["data"]["train_batch_size"]
+        self.train_dataset_dir = config["path"]["train"]
+        self.dev_dataset_dir = config["path"]["dev"]
+        self.test_dataset_dir = config["path"]["test"]
+        if wandb_batch_size:
+            self.train_batch_size = wandb_batch_size
+        else:
+            self.train_batch_size = config["data"]["train_batch_size"]
         self.val_batch_size = config["data"]["val_batch_size"]
         self.test_batch_size = config["data"]["test_batch_size"]
         self.tokenizer = tokenizer

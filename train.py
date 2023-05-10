@@ -22,7 +22,7 @@ if __name__ == "__main__":
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
-    dataloader = ERDataModule(dataset_dir=dataset_dir, tokenizer=tokenizer, batch_size=config["data"]["test_batch_size"])
+    dataloader = ERDataModule(config=config, tokenizer=tokenizer)
     model = ERNet(config=config)
 
     now = datetime.now(pytz.timezone("Asia/Seoul"))
