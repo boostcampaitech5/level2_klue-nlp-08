@@ -1,4 +1,8 @@
+import argparse
+
+import omegaconf
 import sklearn.metrics
+from torch.optim.lr_scheduler import StepLR
 
 
 def klue_re_micro_f1(preds, labels):
@@ -18,3 +22,18 @@ def klue_re_micro_f1(preds, labels):
     label_indices = list(range(len(label_list)))
     label_indices.remove(no_relation_label_idx)
     return sklearn.metrics.f1_score(labels, preds, average="micro", labels=label_indices) * 100.0
+
+def config_parser():
+   parser = argparse.ArgumentParser()
+   parser.add_argument('--config', type = str, default = 'config/default.yaml')
+   args = parser.parse_args()
+
+   config = omegaconf.OmegaConf.load(args.config)
+   return config
+
+def lr_scheduler(lr_scheduler_type, optimizer):
+   if lr_scheduler_type == "stepLR":
+      return StepLR(optimizer, step_size=1)
+   # TODO 이외 lr scheduler 추가
+   else:
+      raise ValueError("정의되지 않은 lr scheduler type입니다.")

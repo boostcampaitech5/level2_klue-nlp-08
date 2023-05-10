@@ -11,18 +11,26 @@ from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
-from utils import klue_re_micro_f1
+from utils import klue_re_micro_f1, lr_scheduler
 
 
 class ERNet(pl.LightningModule):
-    def __init__(self, learning_rate : float, weight_decay : float, model_name : str = "klue/bert-base"):
+    def __init__(self, config, wandb_config=None):
         super().__init__()
 
-        self.model_config =  AutoConfig.from_pretrained(model_name)
+        if wandb_config == None:
+            self.learning_rate = config["train"]["learning_rate"]
+            self.weight_decay = config["train"]["weight_decay"]
+        else:
+            self.learning_rate = wandb_config.learning_rate
+            self.weight_decay = wandb_config.weight_decay
+
+        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
         self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(model_name, config=self.model_config)
-        self.learning_rate = learning_rate
-        self.weight_decay = weight_decay
+        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        self.lr_scheduler_type = config["train"]["lr_scheduler"]
+
+        self.train_step = 0
 
         self.validation_step_outputs = []
         self.output_pred = []
@@ -34,8 +42,8 @@ class ERNet(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate)
-        scheduler = StepLR(optimizer, step_size=1)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        scheduler = lr_scheduler(lr_scheduler_type=self.lr_scheduler_type, optimizer=optimizer)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):
@@ -43,8 +51,14 @@ class ERNet(pl.LightningModule):
         y_hat = self(x).logits
         loss = F.cross_entropy(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
-        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
+        if self.train_step % 100 == 0:
+            print(f"learning_rate : {self.optimizers().optimizer.param_groups[0]['lr']}")
+        self.train_step += 1
         return loss
+
+    def on_train_epoch_end(self):
+        self.train_step = 0
 
     def validation_step(self, batch, _):
         y, x = batch.pop("labels"), batch
