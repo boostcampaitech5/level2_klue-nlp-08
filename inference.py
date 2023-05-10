@@ -18,10 +18,10 @@ if __name__ == "__main__":
     prj_dir = os.path.dirname(os.path.abspath(__file__))
 
     MODEL_NAME = config["model"]["model_name"]
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, additional_special_tokens = ["[ENT]", "[/ENT]"])
 
     dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "test", "test_data.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
-    model = ERNet.load_from_checkpoint(config["path"]["model"], config=config)
+    model = ERNet.load_from_checkpoint(config["path"]["model"], config=config, resize_token_embedding=len(tokenizer))
     trainer = pl.Trainer(max_epochs = config["train"]["num_train_epoch"])
     trainer.test(model=model, datamodule=dataloader)
