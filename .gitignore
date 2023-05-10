@@ -1,6 +1,7 @@
 dataset/*
 output/*
 preprocess/*
+augmentation/*
 code/*
 prediction/*
 model/*
