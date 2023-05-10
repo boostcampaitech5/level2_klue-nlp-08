@@ -10,12 +10,15 @@ import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
+from adabelief_pytorch import AdaBelief
 
+from custom_model import CustomBertForSequenceClassification
 from utils import klue_re_micro_f1, lr_scheduler
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
 class ERNet(pl.LightningModule):
-    def __init__(self, config, wandb_config=None):
+    def __init__(self, config, wandb_config=None,state = None):
         super().__init__()
 
         if wandb_config == None:
@@ -27,7 +30,9 @@ class ERNet(pl.LightningModule):
 
         self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
         self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        #self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        self.model = CustomBertForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config,
+                                                                         state=state).to(device)
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
 
         self.train_step = 0
@@ -42,7 +47,7 @@ class ERNet(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        optimizer = AdaBelief(self.parameters(), lr=self.learning_rate,weight_decouple=True,weight_decay=self.weight_decay)
         scheduler = lr_scheduler(lr_scheduler_type=self.lr_scheduler_type, optimizer=optimizer)
         return [optimizer], [scheduler]
 

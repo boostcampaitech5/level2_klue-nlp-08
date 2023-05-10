@@ -4,6 +4,7 @@ from datetime import datetime
 import pytorch_lightning as pl
 import pytz
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from transformers import AutoTokenizer
 
 from dataloader import ERDataModule
@@ -20,13 +21,20 @@ if __name__ == "__main__":
     
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    added_token_num = tokenizer.add_special_tokens({"additional_special_tokens": ["[ORG]", "[PER]", "[LOC]", "[POH]",
+                                                                                  "[DAT]", "[NOH]", "[/ORG]", "[/PER]",
+                                                                                  "[/LOC]", "[/POH]", "[/DAT]",
+                                                                                  "[/NOH]"]})
 
+    wandb_logger = WandbLogger(project='taemin-wandb-lightning', job_type='train')
     dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
-    model = ERNet(config=config)
-
+    model = ERNet(config=config,state='train')
+    model.model.resize_token_embeddings(tokenizer.vocab_size + added_token_num)
+    print(model)
     now = datetime.now(pytz.timezone("Asia/Seoul"))
 
-    trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{config['model']['model_name'].replace('/', '_')}/{now.strftime('%Y-%m-%d %H.%M.%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1", mode="max"), max_epochs = config["train"]["num_train_epoch"])
+    trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{config['model']['model_name'].replace('/', '_')}/{now.strftime('%Y-%m-%d_%H_%M_%S')}/", filename="{epoch}-{val_micro_f1=.2f}", monitor="val_micro_f1", mode="max"), max_epochs = config["train"]["num_train_epoch"],
+                         logger=wandb_logger)
     trainer.fit(model=model, train_dataloaders=dataloader)
 
