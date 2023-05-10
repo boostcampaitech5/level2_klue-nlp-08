@@ -3,6 +3,7 @@ output/*
 code/*
 prediction/*
 model/*
+pickle/*
 lightning_logs/*
 __pycache__/
 checkpoint/*

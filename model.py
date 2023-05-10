@@ -13,12 +13,12 @@ import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
-
-from model_list import CustomBertForSequenceClassification
+from loss import FocalLoss
+from model_list import TAEMIN_CUSTOM_RBERT, TAEMIN_TOKEN_ATTENTION_BERT, RBERT
 from utils import klue_re_micro_f1, lr_scheduler
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
+focal_loss = FocalLoss(0.25,2.0)
 class ERNet(pl.LightningModule):
     def __init__(self, config, wandb_config=None,state=None):
         super().__init__()
@@ -33,7 +33,7 @@ class ERNet(pl.LightningModule):
         self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
         self.model_config.num_labels = 30
         #self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
-        self.model = CustomBertForSequenceClassification.from_pretrained(config["model"]["model_name"],
+        self.model = RBERT.from_pretrained(config["model"]["model_name"],
                                                                          config=self.model_config,
                                                                          state=state).to(device)
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
@@ -57,7 +57,8 @@ class ERNet(pl.LightningModule):
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
-        loss = F.cross_entropy(y_hat, y)
+        #loss = F.cross_entropy(y_hat, y)
+        loss = focal_loss(y_hat,y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
         if self.train_step % 100 == 0:
@@ -71,8 +72,8 @@ class ERNet(pl.LightningModule):
     def validation_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
-        loss = F.cross_entropy(y_hat, y)
-
+        #loss = F.cross_entropy(y_hat, y)
+        loss = focal_loss(y_hat, y)
         pred = y_hat.argmax(dim=1)
         correct = pred.eq(y.view_as(pred)).sum().item()
         micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu()).item()

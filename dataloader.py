@@ -31,17 +31,14 @@ class ERDataModule(pl.LightningDataModule):
     def setup(self, stage: str):
         if stage == "fit":
             df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(self.dev_dataset_dir)
-            self.train_data = self.RE_make_dataset(df_train, state = "train")
-            self.val_data = self.RE_make_dataset(df_val, state = "val")
-            # df_train, df_val = [self.preprocessing_dataset(dataset = df_train), self.preprocessing_dataset(dataset = df_val)]
-            # train_tokenized, val_tokenized = [self.tokenized_dataset(dataset=df_train, tokenizer=self.tokenizer), self.tokenized_dataset(dataset=df_val, tokenizer=self.tokenizer)]
-            # self.train_data, self.val_data = [train_tokenized, self.tokenized_dataset(dataset=df_val, tokenizer=self.tokenizer)]
-            # self.train_data['labels'] = self.label_to_num(df_train['label'].values)
-            # self.val_data['labels'] = self.label_to_num(df_val['label'].values)
+            self.train_data = self.RE_make_dataset(df_train, state="train")
+            self.val_data = self.RE_make_dataset(df_val, state="train")
+
 
         elif stage == "test":
             df_test = pd.read_csv(self.test_dataset_dir)
-            self.test_data = self.make_dataset(df_test, state = "test")
+            self.test_data = self.RE_make_dataset(df_test, state="test")
+
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(self.train_data, batch_size=self.train_batch_size, shuffle = True)
@@ -102,11 +99,16 @@ class ERDataModule(pl.LightningDataModule):
 
     def RE_make_dataset(self, df : pd.DataFrame, state : str) -> List[Dict]:
         result = []
+
         df_preprocessed = self.preprocessing_dataset_sub_obj_entity(dataset = df)
+        df_tokenized = self.tokenized_dataset_entity_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
+        e1, e2 = self.make_e1_e2(tokenized_sentences=df_tokenized)
         df_tokenized = self.tokenized_dataset_type_entity_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
         index_ids = self.make_index_ids(tokenized_sentences=df_tokenized)
 
         df_tokenized.data['index_ids'] = index_ids
+        df_tokenized.data['e1'] = e1
+        df_tokenized.data['e2'] = e2
         for idx in range(len(df_tokenized["input_ids"])):
             temp = {key: val[idx] for key, val in df_tokenized.items()}
             if state != "test":
@@ -198,6 +200,52 @@ class ERDataModule(pl.LightningDataModule):
         )
         return tokenized_sentences
 
+    def tokenized_dataset_entity_token(self, dataset: pd.DataFrame, tokenizer: AutoTokenizer) -> Dict:
+        concat_entity = []
+        sentence_list = []
+        for e01, e02, sentence, s_e_i, o_e_i, s_type_str, o_type_str in zip(dataset['subject_entity'],
+                                                                            dataset['object_entity'],
+                                                                            dataset['sentence'],
+                                                                            dataset['subject_entity_idx'],
+                                                                            dataset['object_entity_idx']
+                , dataset['subject_entity_type'], dataset['object_entity_type']):
+
+            temp = ''
+            e01 = re.sub(r'^\s+', '', e01)  # remove leading spaces
+            e01 = re.sub(r"'", '', e01)  # remove apostrophes
+            e02 = re.sub(r'^\s+', '', e02)  # remove leading spaces
+            e02 = re.sub(r"'", '', e02)
+
+            s_type = f'[{s_type_str}]'
+            end_s_type = f'[/{s_type_str}]'
+
+            o_type = f'[{o_type_str}]'
+            end_o_type = f'[/{o_type_str}]'
+
+            temp = '[SUB]' + e01 + '[/SUB]' + '[SEP]' + '[OBJ]' + e02 + '[/OBJ]'
+            concat_entity.append(temp)  # '[Entity]'
+            if s_e_i[0] < o_e_i[0]:
+                sentence = sentence[:s_e_i[0]] + '[SUB]' + sentence[s_e_i[0]:]
+                sentence = sentence[:s_e_i[1] + 6] + '[/SUB]' + sentence[s_e_i[1] + 6:]
+                sentence = sentence[:o_e_i[0] + 11] + '[OBJ]' + sentence[o_e_i[0] + 11:]  # 8
+                sentence = sentence[:o_e_i[1] + 11 + 6] + '[/OBJ]' + sentence[o_e_i[1] + 11 + 6:]  # 9
+            else:
+                sentence = sentence[:o_e_i[0]] + '[OBJ]' + sentence[o_e_i[0]:]
+                sentence = sentence[:o_e_i[1] + 6] + '[/OBJ]' + sentence[o_e_i[1] + 6:]
+                sentence = sentence[:s_e_i[0] + 11] + '[SUB]' + sentence[s_e_i[0] + 11:]  # 8
+                sentence = sentence[:s_e_i[1] + 11 + 6] + '[/SUB]' + sentence[s_e_i[1] + 11 + 6:]  # 9
+            sentence_list.append(sentence)
+        tokenized_sentences = tokenizer(
+            concat_entity,
+            sentence_list,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=256,
+            add_special_tokens=True,
+        )
+        return tokenized_sentences
+
     def make_index_ids(self, tokenized_sentences: Dict) -> BatchEncoding:
         index_ids = []
         for i in range(len(tokenized_sentences.data['attention_mask'])):
@@ -213,7 +261,41 @@ class ERDataModule(pl.LightningDataModule):
                 if value > 32005:
                     index_number = 0
                 index_tensor[index] = index_number
-                if value >= 32000 and value <= 32005:
+                if value >= 32000:
                     index_tensor[index] = 0
             index_ids.append(list(index_tensor.to(dtype=torch.int64)))
         return torch.tensor(index_ids)
+
+    def make_e1_e2(self, tokenized_sentences: Dict) -> tuple:
+        index_ids_e1 = []
+        index_ids_e2 = []
+        for i in range(len(tokenized_sentences.data['attention_mask'])):
+            index_number_e1 = 0
+            index_number_e2 = 0
+            temp_input_ids = tokenized_sentences.data['input_ids'][i]
+            index_tensor_e1 = torch.zeros_like(temp_input_ids)
+            index_tensor_e2 = torch.zeros_like(temp_input_ids)
+            for index, value in enumerate(temp_input_ids):
+                if value == 0:
+                    break
+                if value == 32012:
+                    index_number_e1 = 1
+                if value == 32013:
+                    index_number_e1 = 0
+                index_tensor_e1[index] = index_number_e1
+                if value >= 32000:
+                    index_tensor_e1[index] = 0
+
+                if value == 32014:
+                    index_number_e2 = 1
+                if value == 32015:
+                    index_number_e2 = 0
+                index_tensor_e2[index] = index_number_e2
+                if value >= 32000:
+                    index_tensor_e2[index] = 0
+
+            index_ids_e1.append(list(index_tensor_e1.to(dtype=torch.int64)))
+            index_ids_e2.append(list(index_tensor_e2.to(dtype=torch.int64)))
+
+        return (torch.tensor(index_ids_e1),torch.tensor(index_ids_e2))
+

@@ -25,7 +25,8 @@ if __name__ == "__main__":
     added_token_num = tokenizer.add_special_tokens({"additional_special_tokens": ["[ORG]", "[PER]", "[LOC]", "[POH]",
                                                                                   "[DAT]", "[NOH]", "[/ORG]", "[/PER]",
                                                                                   "[/LOC]", "[/POH]", "[/DAT]",
-                                                                                  "[/NOH]"]})
+                                                                                  "[/NOH]","[SUB]","[/SUB]","[OBJ]",
+                                                                                  "[/OBJ]",]})
 
     dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
