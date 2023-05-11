@@ -53,11 +53,12 @@ class ERDataModule(pl.LightningDataModule):
         subject_entity = []
         object_entity = []
         for i,j in zip(dataset['subject_entity'], dataset['object_entity']):
-            i = i[1:-1].split(',')[0].split(':')[1]
-            j = j[1:-1].split(',')[0].split(':')[1]
+            sub_dict, obj_dict = eval(i), eval(j)
+            subject = sub_dict["word"]
+            object = obj_dict["word"]
 
-            subject_entity.append(i)
-            object_entity.append(j)
+            subject_entity.append(subject)
+            object_entity.append(object)
         out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity,'object_entity':object_entity,'label':dataset['label'],})
         return out_dataset
 
