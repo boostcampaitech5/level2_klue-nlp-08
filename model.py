@@ -33,6 +33,8 @@ class ERNet(pl.LightningModule):
         self.train_step = 0
 
         self.validation_step_outputs = []
+        self.validation_preds = []
+        self.validation_labels = []
         self.output_pred = []
         self.output_prob = []
 
@@ -71,14 +73,22 @@ class ERNet(pl.LightningModule):
 
         preds = {"val_micro_f1": micro_f1, "val_loss" : loss, "correct" : correct}
         self.validation_step_outputs.append(preds)
+
+        self.validation_preds.extend(pred.tolist())
+        self.validation_labels.extend(y.tolist())
         return preds
 
     def on_validation_epoch_end(self):
         avg_loss = torch.stack([x['val_loss'] for x in self.validation_step_outputs]).mean()
-        avg_f1 = statistics.mean([x['val_micro_f1'] for x in self.validation_step_outputs])
-        self.log_dict({'val_micro_f1': avg_f1, 'val_loss': avg_loss})
-        print(f"{{Epoch {self.current_epoch} val_micro_f1': {avg_f1} val_loss : {avg_loss}}}")
+        # val_micro_f1 = statistics.mean([x['val_micro_f1'] for x in self.validation_step_outputs])
+        val_preds = torch.tensor(self.validation_preds).detach().cpu()
+        val_labels = torch.tensor(self.validation_labels).detach().cpu()
+        val_micro_f1 = klue_re_micro_f1(val_preds, val_labels)
+        self.log_dict({'val_micro_f1': val_micro_f1, 'val_loss': avg_loss})
+        print(f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}")
         self.validation_step_outputs.clear()
+        self.validation_preds.clear()
+        self.validation_labels.clear()
 
     def test_step(self, batch, _):
         x = batch
