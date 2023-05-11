@@ -85,14 +85,14 @@ class ERDataModule(pl.LightningDataModule):
         concat_entity = []
         for e01, e02 in zip(dataset['subject_entity'], dataset['object_entity']):
             temp = ''
-            temp = "[ENT]" + e01 + "[/ENT]" + "[ENT]" + e02 + "[/ENT]"
+            temp = "[SUB]" + e01 + "[/SUB]" + "[OBJ]" + e02 + "[/OBJ]"
             concat_entity.append(temp)
         new_sentences = []
         for (sent, sub_s, sub_e, obj_s, obj_e) in zip(dataset["sentence"], dataset["subject_start_idx"], dataset["subject_end_idx"], dataset["object_start_idx"], dataset["object_end_idx"]):
             if sub_e < obj_e:
-                new_sent = sent[:sub_s] + "[ENT]" + sent[sub_s:sub_e+1] + "[/ENT]" + sent[sub_e+1:obj_s] + "[ENT]" + sent[obj_s:obj_e+1] + "[/ENT]" + sent[obj_e+1:]
+                new_sent = sent[:sub_s] + "[SUB]" + sent[sub_s:sub_e+1] + "[/SUB]" + sent[sub_e+1:obj_s] + "[OBJ]" + sent[obj_s:obj_e+1] + "[/OBJ]" + sent[obj_e+1:]
             else:
-                new_sent = sent[:obj_s] + "[ENT]" + sent[obj_s:obj_e+1] + "[/ENT]" + sent[obj_e+1:sub_s] + "[ENT]" + sent[sub_s:sub_e+1] + "[/ENT]" + sent[sub_e+1:]
+                new_sent = sent[:obj_s] + "[OBJ]" + sent[obj_s:obj_e+1] + "[/OBJ]" + sent[obj_e+1:sub_s] + "[SUB]" + sent[sub_s:sub_e+1] + "[/SUB]" + sent[sub_e+1:]
             new_sentences.append(new_sent)
         tokenized_sentences = tokenizer(
             concat_entity,
