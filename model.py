@@ -12,9 +12,9 @@ import torch
 import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
-                          AutoTokenizer)
+                          AutoTokenizer,RobertaConfig)
 from loss import FocalLoss
-from model_list import TAEMIN_CUSTOM_RBERT, TAEMIN_TOKEN_ATTENTION_BERT, RBERT
+from model_list import TAEMIN_CUSTOM_RBERT, TAEMIN_TOKEN_ATTENTION_BERT, RBERT, TAEMIN_TOKEN_ATTENTION_RoBERTa
 from utils import klue_re_micro_f1, lr_scheduler
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -30,12 +30,19 @@ class ERNet(pl.LightningModule):
             self.learning_rate = wandb_config.learning_rate
             self.weight_decay = wandb_config.weight_decay
 
-        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
-        self.model_config.num_labels = 30
+        #self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
+        #self.model_config.num_labels = 30
         #self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
-        self.model = RBERT.from_pretrained(config["model"]["model_name"],
-                                                                         config=self.model_config,
-                                                                         state=state).to(device)
+
+        roberta_config = RobertaConfig.from_pretrained("klue/roberta-large", num_laels=30)
+        #self.model = TAEMIN_TOKEN_ATTENTION_RoBERTa.from_pretrained("klue/roberta-large", config=roberta_config, state=state).to(device)
+        #C:\Users\tm011\PycharmProjects\level2_klue-nlp-08\checkpoint\klue_roberta-large\2023-05-11 22.17.06
+        self.model = TAEMIN_TOKEN_ATTENTION_RoBERTa.from_pretrained("klue/roberta-large", config=roberta_config,
+                                                                    state=state).to(device)
+        self.model.resize_token_embeddings(32000 + 16)
+        #self.state_dict = torch.load('C:/Users/tm011/PycharmProjects/level2_klue-nlp-08/checkpoint/klue_roberta-large/2023-05-11 22.17.06/epoch=2-val_micro_f1=70.19.ckpt')
+        #self.model.load_state_dict(self.state_dict)
+
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
 
         self.train_step = 0
@@ -51,14 +58,15 @@ class ERNet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = AdaBelief(self.parameters(), lr=self.learning_rate,weight_decouple=True,weight_decay=self.weight_decay)
+        #optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         scheduler = lr_scheduler(lr_scheduler_type=self.lr_scheduler_type, optimizer=optimizer)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
-        #loss = F.cross_entropy(y_hat, y)
-        loss = focal_loss(y_hat,y)
+        loss = F.cross_entropy(y_hat, y)
+        #loss = focal_loss(y_hat,y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
         if self.train_step % 100 == 0:
@@ -72,8 +80,8 @@ class ERNet(pl.LightningModule):
     def validation_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
-        #loss = F.cross_entropy(y_hat, y)
-        loss = focal_loss(y_hat, y)
+        loss = F.cross_entropy(y_hat, y)
+        #loss = focal_loss(y_hat, y)
         pred = y_hat.argmax(dim=1)
         correct = pred.eq(y.view_as(pred)).sum().item()
         micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu()).item()

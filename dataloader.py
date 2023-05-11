@@ -31,13 +31,13 @@ class ERDataModule(pl.LightningDataModule):
     def setup(self, stage: str):
         if stage == "fit":
             df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(self.dev_dataset_dir)
-            self.train_data = self.RE_make_dataset(df_train, state="train")
-            self.val_data = self.RE_make_dataset(df_val, state="train")
+            self.train_data = self.RE_make_dataset_for_roberta(df_train, state="train")
+            self.val_data = self.RE_make_dataset_for_roberta(df_val, state="train")
 
 
         elif stage == "test":
             df_test = pd.read_csv(self.test_dataset_dir)
-            self.test_data = self.RE_make_dataset(df_test, state="test")
+            self.test_data = self.RE_make_dataset_for_roberta(df_test, state="test")
 
 
     def train_dataloader(self) -> DataLoader:
@@ -97,7 +97,7 @@ class ERDataModule(pl.LightningDataModule):
 
         return result
 
-    def RE_make_dataset(self, df : pd.DataFrame, state : str) -> List[Dict]:
+    def RE_make_dataset_for_bert(self, df : pd.DataFrame, state : str) -> List[Dict]:
         result = []
 
         df_preprocessed = self.preprocessing_dataset_sub_obj_entity(dataset = df)
@@ -105,6 +105,26 @@ class ERDataModule(pl.LightningDataModule):
         e1, e2 = self.make_e1_e2(tokenized_sentences=df_tokenized)
         df_tokenized = self.tokenized_dataset_type_entity_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
         index_ids = self.make_index_ids(tokenized_sentences=df_tokenized)
+
+        df_tokenized.data['index_ids'] = index_ids
+        df_tokenized.data['e1'] = e1
+        df_tokenized.data['e2'] = e2
+        for idx in range(len(df_tokenized["input_ids"])):
+            temp = {key: val[idx] for key, val in df_tokenized.items()}
+            if state != "test":
+                temp['labels'] = self.label_to_num(df['label'].values[idx])
+            result.append(temp)
+
+        return result
+
+    def RE_make_dataset_for_roberta(self, df : pd.DataFrame, state : str) -> List[Dict]:
+        result = []
+
+        df_preprocessed = self.preprocessing_dataset_sub_obj_entity(dataset = df)
+        df_tokenized = self.tokenized_dataset_entity_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
+        e1, e2 = self.make_e1_e2_roberta(tokenized_sentences=df_tokenized)
+        df_tokenized = self.tokenized_dataset_type_entity_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
+        index_ids = self.make_index_ids_roberta(tokenized_sentences=df_tokenized)
 
         df_tokenized.data['index_ids'] = index_ids
         df_tokenized.data['e1'] = e1
@@ -299,3 +319,55 @@ class ERDataModule(pl.LightningDataModule):
 
         return (torch.tensor(index_ids_e1),torch.tensor(index_ids_e2))
 
+    def make_e1_e2_roberta(self, tokenized_sentences: Dict) -> tuple:
+        index_ids_e1 = []
+        index_ids_e2 = []
+        for i in range(len(tokenized_sentences.data['attention_mask'])):
+            index_number_e1 = 0
+            index_number_e2 = 0
+            temp_input_ids = tokenized_sentences.data['input_ids'][i]
+            index_tensor_e1 = torch.zeros_like(temp_input_ids)
+            index_tensor_e2 = torch.zeros_like(temp_input_ids)
+            for index, value in enumerate(temp_input_ids):
+                if value == 1:
+                    break
+                if value == 32012:
+                    index_number_e1 = 1
+                if value == 32013:
+                    index_number_e1 = 0
+                index_tensor_e1[index] = index_number_e1
+                if value >= 32000:
+                    index_tensor_e1[index] = 0
+
+                if value == 32014:
+                    index_number_e2 = 1
+                if value == 32015:
+                    index_number_e2 = 0
+                index_tensor_e2[index] = index_number_e2
+                if value >= 32000:
+                    index_tensor_e2[index] = 0
+
+            index_ids_e1.append(list(index_tensor_e1.to(dtype=torch.int64)))
+            index_ids_e2.append(list(index_tensor_e2.to(dtype=torch.int64)))
+
+        return (torch.tensor(index_ids_e1),torch.tensor(index_ids_e2))
+
+    def make_index_ids_roberta(self, tokenized_sentences: Dict) -> BatchEncoding:
+        index_ids = []
+        for i in range(len(tokenized_sentences.data['attention_mask'])):
+            index_number = 0
+            temp_input_ids = tokenized_sentences.data['input_ids'][i]
+            index_tensor = torch.zeros_like(temp_input_ids)
+
+            for index, value in enumerate(temp_input_ids):
+                if value == 1:
+                    break
+                if value >= 32000 and value <= 32005:
+                    index_number = 1
+                if value > 32005:
+                    index_number = 0
+                index_tensor[index] = index_number
+                if value >= 32000:
+                    index_tensor[index] = 0
+            index_ids.append(list(index_tensor.to(dtype=torch.int64)))
+        return torch.tensor(index_ids)
