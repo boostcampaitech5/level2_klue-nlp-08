@@ -11,7 +11,7 @@ from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
-from utils import klue_re_micro_f1, lr_scheduler
+from utils import klue_re_micro_f1, lr_scheduler, show_confusion_matrix
 
 
 class ERNet(pl.LightningModule):
@@ -31,6 +31,7 @@ class ERNet(pl.LightningModule):
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
 
         self.train_step = 0
+        self.val_epoch = -1
 
         self.validation_step_outputs = []
         self.validation_preds = []
@@ -84,11 +85,17 @@ class ERNet(pl.LightningModule):
         val_preds = torch.tensor(self.validation_preds).detach().cpu()
         val_labels = torch.tensor(self.validation_labels).detach().cpu()
         val_micro_f1 = klue_re_micro_f1(val_preds, val_labels)
+
         self.log_dict({'val_micro_f1': val_micro_f1, 'val_loss': avg_loss})
-        print(f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}")
+
+        if self.val_epoch >= 0:
+            print(f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}")
+            show_confusion_matrix(preds=val_preds, labels=val_labels, epoch = self.val_epoch)
+
         self.validation_step_outputs.clear()
         self.validation_preds.clear()
         self.validation_labels.clear()
+        self.val_epoch += 1
 
     def test_step(self, batch, _):
         x = batch
