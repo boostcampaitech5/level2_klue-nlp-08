@@ -19,9 +19,9 @@ if __name__ == "__main__":
     prj_dir = os.path.dirname(os.path.abspath(__file__))
     
     MODEL_NAME = config["model"]["model_name"]
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, additional_special_tokens = ["[SUB]", "[/SUB]", "[OBJ]", "[/OBJ]"])
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME,)
 
-    dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
+    # dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
     model = ERNet(config=config)
     model.model.resize_token_embeddings(len(tokenizer))
