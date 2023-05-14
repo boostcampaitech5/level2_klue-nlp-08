@@ -7,19 +7,19 @@ data :
   tokenizer_max_len : 128
 
 train :
-  num_train_epoch : 3
+  num_train_epoch : 7
   weight_decay : 0.01
   learning_rate : 5e-5
   lr_scheduler : stepLR
 
 model :
-  model_name : klue/bert-base
+  model_name : snunlp/KR-ELECTRA-discriminator
 
 wandb :
-  project_name : klue-bert-base_tuning
+  project_name : snunlp_KR-ELECTRA-discriminator_tuning
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-11 22.09.58/epoch=1-val_micro_f1=62.60.ckpt
+  model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
   train : ./dataset/train/new_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv

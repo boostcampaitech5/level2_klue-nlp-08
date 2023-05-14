@@ -13,13 +13,13 @@ train :
   lr_scheduler : stepLR
 
 model :
-  model_name : klue/bert-base
+  model_name : ainize/klue-bert-base-re
 
 wandb :
   project_name : klue-bert-base_tuning
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-11 22.09.58/epoch=1-val_micro_f1=62.60.ckpt
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-12 15.43.25/epoch=2-val_micro_f1=65.08.ckpt
   train : ./dataset/train/new_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv

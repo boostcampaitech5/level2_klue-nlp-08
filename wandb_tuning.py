@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     parameters_dict = {
         'epochs': {
-            'values': [5, 10]  
+            'values': [5, 7]
         },
         'batch_size': {
             'values': [4, 8, 16]  
@@ -48,7 +48,7 @@ if __name__ == "__main__":
 
     def wandb_tuning():
         wandb.init()
-        dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
+        # dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
         dataloader = ERDataModule(config=config, tokenizer=tokenizer, wandb_batch_size=wandb.config.batch_size)
         model = ERNet(config=config, wandb_config=wandb.config)
 
