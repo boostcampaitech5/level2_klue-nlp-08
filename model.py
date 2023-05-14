@@ -15,7 +15,7 @@ from utils import klue_re_micro_f1, lr_scheduler
 
 
 class ERNet(pl.LightningModule):
-    def __init__(self, config, wandb_config=None):
+    def __init__(self, config, wandb_config=None, resize_token_embedding=None):
         super().__init__()
 
         if wandb_config == None:
@@ -28,6 +28,8 @@ class ERNet(pl.LightningModule):
         self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
         self.model_config.num_labels = 30
         self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        if resize_token_embedding:
+            self.model.resize_token_embeddings(resize_token_embedding)
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
 
         self.train_step = 0

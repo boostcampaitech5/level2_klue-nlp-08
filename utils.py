@@ -2,7 +2,9 @@ import argparse
 
 import omegaconf
 import sklearn.metrics
-from torch.optim.lr_scheduler import StepLR
+from torch.optim.lr_scheduler import ExponentialLR, LambdaLR, StepLR
+
+# from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
 
 
 def klue_re_micro_f1(preds, labels):
@@ -33,7 +35,11 @@ def config_parser():
 
 def lr_scheduler(lr_scheduler_type, optimizer):
    if lr_scheduler_type == "stepLR":
-      return StepLR(optimizer, step_size=1)
+      return StepLR(optimizer, step_size=1, verbose=True)
+   elif lr_scheduler_type == "exponentialLR":
+      return ExponentialLR(optimizer, gamma = 0.9, verbose=True)
+   elif lr_scheduler_type == "lambdaLR":
+      return LambdaLR(optimizer, lr_lambda=lambda epoch: 0.8 ** epoch, verbose=True)
    # TODO 이외 lr scheduler 추가
    else:
-      raise ValueError("정의되지 않은 lr scheduler type입니다.")
+      raise ValueError(f"{lr_scheduler_type} : 정의되지 않은 lr scheduler type입니다.")
