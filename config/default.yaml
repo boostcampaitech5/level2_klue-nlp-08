@@ -19,8 +19,10 @@ wandb :
   project_name : klue-bert-base_tuning
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-11 22.09.58/epoch=1-val_micro_f1=62.60.ckpt
-  train : ./dataset/train/new_train.csv
+  # model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-11 22.09.58/epoch=1-val_micro_f1=62.60.ckpt
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-15 01.58.21/epoch=2-val_micro_f1=62.21.ckpt
+  # train : ./dataset/train/new_train.csv
+  train : ./dataset/train/other_entity_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv
 
