@@ -1,21 +1,23 @@
 import os
 import pickle
-import statistics
 from typing import List
 
 import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer)
 
-from utils import klue_re_micro_f1, lr_scheduler, show_confusion_matrix
+from modules.losses import get_loss
+from modules.optimizers import get_optimizer
+from modules.schedulers import get_scheduler
+from modules.utils import klue_re_micro_f1, show_confusion_matrix
 
+from models.utils import get_model
 
 class ERNet(pl.LightningModule):
-    def __init__(self, config, wandb_config=None):
+    def __init__(self, config, wandb_config=None, resize_token_embedding=None, state=None):
         super().__init__()
 
         if wandb_config == None:
@@ -25,10 +27,13 @@ class ERNet(pl.LightningModule):
             self.learning_rate = wandb_config.learning_rate
             self.weight_decay = wandb_config.weight_decay
 
-        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
-        self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        self.model = get_model(model_name=config["model"]["model_name"], state=state)
+        if resize_token_embedding:
+            self.model.resize_token_embeddings(resize_token_embedding)
+
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
+        self.optimizer_type = config["train"]["optimizer"]
+        self.loss_type = config["train"]["loss"]
 
         self.train_step = 0
 
@@ -46,14 +51,18 @@ class ERNet(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
-        scheduler = lr_scheduler(lr_scheduler_type=self.lr_scheduler_type, optimizer=optimizer)
+        optimizer = get_optimizer(optimizer_type=self.optimizer_type)
+        optimizer = optimizer(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        scheduler = get_scheduler(lr_scheduler_type=self.lr_scheduler_type)
+        scheduler = scheduler(optimizer, step_size=1)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
-        loss = F.cross_entropy(y_hat, y)
+        loss = get_loss(self.loss_type)
+        loss = loss()
+        loss = loss(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
         if self.train_step % 100 == 0:
