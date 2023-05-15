@@ -31,7 +31,8 @@ class ERNet(pl.LightningModule):
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
 
         self.train_step = 0
-        self.val_epoch = -1
+
+        self.confusion_matrix_path = config["path"]["confusion_matrix"]
 
         self.validation_step_outputs = []
         self.validation_preds = []
@@ -88,14 +89,13 @@ class ERNet(pl.LightningModule):
 
         self.log_dict({'val_micro_f1': val_micro_f1, 'val_loss': avg_loss})
 
-        if self.val_epoch >= 0:
+        if self.current_epoch >= 0:
             print(f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}")
-            show_confusion_matrix(preds=val_preds, labels=val_labels, epoch = self.val_epoch)
+            show_confusion_matrix(preds=val_preds, labels=val_labels, epoch=self.current_epoch, save_path=self.confusion_matrix_path)
 
         self.validation_step_outputs.clear()
         self.validation_preds.clear()
         self.validation_labels.clear()
-        self.val_epoch += 1
 
     def test_step(self, batch, _):
         x = batch

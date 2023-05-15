@@ -42,13 +42,13 @@ def lr_scheduler(lr_scheduler_type, optimizer):
    else:
       raise ValueError("정의되지 않은 lr scheduler type입니다.")
 
-def show_confusion_matrix(preds, labels, epoch):
+def show_confusion_matrix(preds, labels, epoch, save_path):
    now = datetime.now(pytz.timezone("Asia/Seoul"))
 
    matrix = sklearn.metrics.confusion_matrix(y_pred=preds, y_true=labels)
    os.makedirs("confusion_matrix", exist_ok=True)
-   os.makedirs(f"confusion_matrix/{now.strftime('%Y-%m-%d %H.%M.%S')}", exist_ok=True)
-   with open(f"./confusion_matrix/{now.strftime('%Y-%m-%d %H.%M.%S')}/epoch:{epoch}.txt", "w") as f:
+   os.makedirs(save_path, exist_ok=True)
+   with open(f"{save_path}/epoch:{epoch}&{now.strftime('%Y-%m-%d %H.%M.%S')}.txt", "w") as f:
       content = str(matrix)
       content = re.sub(r'\s+', ',', content)
       content = re.sub(r'\d+', lambda m: f"{m.group(0):>4}", content)
