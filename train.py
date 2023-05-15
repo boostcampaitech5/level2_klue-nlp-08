@@ -22,12 +22,13 @@ if __name__ == "__main__":
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
-    added_token_num = tokenizer.add_special_tokens({"additional_special_tokens": ["[ORG]", "[PER]", "[LOC]", "[POH]",
-                                                                                  "[DAT]", "[NOH]", "[/ORG]", "[/PER]",
-                                                                                  "[/LOC]", "[/POH]", "[/DAT]",
-                                                                                  "[/NOH]","[SUB]","[/SUB]","[OBJ]",
-                                                                                  "[/OBJ]",]})
+    # added_token_num = tokenizer.add_special_tokens({"additional_special_tokens": ["[ORG]", "[PER]", "[LOC]", "[POH]",
+    #                                                                               "[DAT]", "[NOH]", "[/ORG]", "[/PER]",
+    #                                                                               "[/LOC]", "[/POH]", "[/DAT]",
+    #                                                                               "[/NOH]","[SUB]","[/SUB]","[OBJ]",
+    #                                                                               "[/OBJ]",]})
 
+    added_token_num = tokenizer.add_special_tokens({"additional_special_tokens": ["[REL]"]})
     dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
     model = ERNet(config=config,state='train')

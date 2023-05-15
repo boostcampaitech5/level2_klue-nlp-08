@@ -14,7 +14,7 @@ from torch.optim.lr_scheduler import StepLR
 from transformers import (AutoConfig, AutoModelForSequenceClassification,
                           AutoTokenizer,RobertaConfig)
 from loss import FocalLoss
-from model_list import TAEMIN_CUSTOM_RBERT, TAEMIN_TOKEN_ATTENTION_BERT, RBERT, TAEMIN_TOKEN_ATTENTION_RoBERTa
+from model_list import TAEMIN_CUSTOM_RBERT, TAEMIN_TOKEN_ATTENTION_BERT, RBERT, TAEMIN_TOKEN_ATTENTION_RoBERTa,TAEMIN_R_RoBERTa,TAEMIN_RoBERTa_LSTM
 from utils import klue_re_micro_f1, lr_scheduler
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -30,18 +30,17 @@ class ERNet(pl.LightningModule):
             self.learning_rate = wandb_config.learning_rate
             self.weight_decay = wandb_config.weight_decay
 
-        #self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
-        #self.model_config.num_labels = 30
-        #self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
+        self.model_config.num_labels = 30
+        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
 
-        roberta_config = RobertaConfig.from_pretrained("klue/roberta-large", num_laels=30)
-        #self.model = TAEMIN_TOKEN_ATTENTION_RoBERTa.from_pretrained("klue/roberta-large", config=roberta_config, state=state).to(device)
-        #C:\Users\tm011\PycharmProjects\level2_klue-nlp-08\checkpoint\klue_roberta-large\2023-05-11 22.17.06
-        self.model = TAEMIN_TOKEN_ATTENTION_RoBERTa.from_pretrained("klue/roberta-large", config=roberta_config,
-                                                                    state=state).to(device)
-        self.model.resize_token_embeddings(32000 + 16)
-        #self.state_dict = torch.load('C:/Users/tm011/PycharmProjects/level2_klue-nlp-08/checkpoint/klue_roberta-large/2023-05-11 22.17.06/epoch=2-val_micro_f1=70.19.ckpt')
-        #self.model.load_state_dict(self.state_dict)
+        # roberta_config = RobertaConfig.from_pretrained("klue/roberta-large", num_laels=30)
+        #
+        # self.model = TAEMIN_RoBERTa_LSTM.from_pretrained("klue/roberta-large", config=roberta_config,
+        #                                                             state=state).to(device)
+        if state != 'train':
+            self.model.resize_token_embeddings(32000 + 1)
+
 
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
 

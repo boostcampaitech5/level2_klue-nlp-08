@@ -11,7 +11,7 @@ import pandas as pd
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, BatchEncoding
-
+type_dict = {'ORG': '단체','PER':'사람','LOC':'지역','POH':'직업','NOH':'숫자','DAT':'날짜'}
 
 class ERDataModule(pl.LightningDataModule):
     def __init__(self, config, tokenizer : AutoTokenizer, wandb_batch_size : int =None):
@@ -31,13 +31,13 @@ class ERDataModule(pl.LightningDataModule):
     def setup(self, stage: str):
         if stage == "fit":
             df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(self.dev_dataset_dir)
-            self.train_data = self.RE_make_dataset_for_roberta(df_train, state="train")
-            self.val_data = self.RE_make_dataset_for_roberta(df_val, state="train")
+            self.train_data = self.make_dataset_punct(df_train, state="train")
+            self.val_data = self.make_dataset_punct(df_val, state="train")
 
 
         elif stage == "test":
             df_test = pd.read_csv(self.test_dataset_dir)
-            self.test_data = self.RE_make_dataset_for_roberta(df_test, state="test")
+            self.test_data = self.make_dataset_punct(df_test, state="test")
 
 
     def train_dataloader(self) -> DataLoader:
@@ -85,10 +85,20 @@ class ERDataModule(pl.LightningDataModule):
             dict_label_to_num = pickle.load(f)
         return dict_label_to_num[label]
 
-    def make_dataset(self, df : pd.DataFrame, state : str) -> List[Dict]:
+    def make_dataset(self, df: pd.DataFrame, state: str) -> List[Dict]:
         result = []
-        df_preprocessed = self.preprocessing_dataset(dataset = df)
+        df_preprocessed = self.preprocessing_dataset(dataset=df)
         df_tokenized = self.tokenized_dataset(dataset=df_preprocessed, tokenizer=self.tokenizer)
+        for idx in range(len(df_tokenized["input_ids"])):
+            temp = {key: val[idx] for key, val in df_tokenized.items()}
+            if state != "test":
+                temp['labels'] = self.label_to_num(df['label'].values[idx])
+            result.append(temp)
+
+    def make_dataset_punct(self, df : pd.DataFrame, state : str) -> List[Dict]:
+        result = []
+        df_preprocessed = self.preprocessing_dataset_sub_obj_entity(dataset = df)
+        df_tokenized = self.tokenized_dataset_type_punct_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
         for idx in range(len(df_tokenized["input_ids"])):
             temp = {key: val[idx] for key, val in df_tokenized.items()}
             if state != "test":
@@ -129,6 +139,33 @@ class ERDataModule(pl.LightningDataModule):
         df_tokenized.data['index_ids'] = index_ids
         df_tokenized.data['e1'] = e1
         df_tokenized.data['e2'] = e2
+        for idx in range(len(df_tokenized["input_ids"])):
+            temp = {key: val[idx] for key, val in df_tokenized.items()}
+            if state != "test":
+                temp['labels'] = self.label_to_num(df['label'].values[idx])
+            result.append(temp)
+
+        return result
+
+    def RE_make_dataset_for_roberta_attention(self, df : pd.DataFrame, state : str) -> List[Dict]:
+        result = []
+
+        df_preprocessed = self.preprocessing_dataset_sub_obj_entity(dataset = df)
+        df_tokenized = self.tokenized_dataset_type_entity_token(dataset=df_preprocessed, tokenizer=self.tokenizer)
+        index_ids = self.make_index_ids_roberta(tokenized_sentences=df_tokenized)
+
+        df_tokenized.data['index_ids'] = index_ids
+        for idx in range(len(df_tokenized["input_ids"])):
+            temp = {key: val[idx] for key, val in df_tokenized.items()}
+            if state != "test":
+                temp['labels'] = self.label_to_num(df['label'].values[idx])
+            result.append(temp)
+        return result
+
+    def make_dataset_for_roberta(self, df : pd.DataFrame, state : str) -> List[Dict]:
+        result = []
+        df_preprocessed = self.preprocessing_dataset_sub_obj_entity(dataset = df)
+        df_tokenized = self.tokenized_dataset(dataset=df_preprocessed, tokenizer=self.tokenizer)
         for idx in range(len(df_tokenized["input_ids"])):
             temp = {key: val[idx] for key, val in df_tokenized.items()}
             if state != "test":
@@ -371,3 +408,50 @@ class ERDataModule(pl.LightningDataModule):
                     index_tensor[index] = 0
             index_ids.append(list(index_tensor.to(dtype=torch.int64)))
         return torch.tensor(index_ids)
+
+    def tokenized_dataset_type_punct_token(self, dataset: pd.DataFrame, tokenizer: AutoTokenizer) -> Dict:
+        concat_entity = []
+        sentence_list = []
+        for e01, e02, sentence, s_e_i, o_e_i, s_type_str, o_type_str in zip(dataset['subject_entity'],
+                                                                            dataset['object_entity'],
+                                                                            dataset['sentence'],
+                                                                            dataset['subject_entity_idx'],
+                                                                            dataset['object_entity_idx']
+                , dataset['subject_entity_type'], dataset['object_entity_type']):
+
+            temp = ''
+            e01 = re.sub(r'^\s+', '', e01)  # remove leading spaces #Bill
+            e01 = re.sub(r"'", '', e01)  # remove apostrophes
+            e02 = re.sub(r'^\s+', '', e02)  # remove leading spaces
+            e02 = re.sub(r"'", '', e02)
+
+            s_type = f'{type_dict[s_type_str]}' #사람
+            end_s_type = f'/{type_dict[s_type_str]}'
+
+            o_type = f'{type_dict[o_type_str]}'
+            end_o_type = f'/{type_dict[o_type_str]}'
+
+
+            temp = '@' +'*'+s_type+ '*' + e01 + '@' + '[REL]' + '#'+'*'+o_type+ '*' + e02 + '#'
+            concat_entity.append(temp)  # '[Entity]'
+            if s_e_i[0] < o_e_i[0]:
+                sentence = sentence[:s_e_i[0]]+'@' +'*' + s_type +'*' + sentence[s_e_i[0]:]
+                sentence = sentence[:s_e_i[1] + 6] + '@' + sentence[s_e_i[1] + 6:]
+                sentence = sentence[:o_e_i[0] + 6] +'#' +'*' + o_type +'*' + sentence[o_e_i[0] + 6:]  # 8
+                sentence = sentence[:o_e_i[1] + 6 + 6] + '#' + sentence[o_e_i[1] + 6 + 6:]  # 9
+            else:
+                sentence = sentence[:o_e_i[0]] + '#' + '*' + o_type + '*' + sentence[o_e_i[0]:]
+                sentence = sentence[:o_e_i[1] + 6] + '#' + sentence[o_e_i[1] + 6:]
+                sentence = sentence[:s_e_i[0] + 6] + '@' + '*' + s_type + '*' + sentence[s_e_i[0] + 6:]  # 8
+                sentence = sentence[:s_e_i[1] + 6 + 6] + '@' + sentence[s_e_i[1] + 6 + 6:]  # 9
+            sentence_list.append(sentence)
+        tokenized_sentences = tokenizer(
+            concat_entity,
+            sentence_list,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=256,
+            add_special_tokens=True,
+        )
+        return tokenized_sentences
