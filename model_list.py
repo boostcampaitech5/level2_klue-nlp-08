@@ -20,6 +20,7 @@ class RobertaPooler(nn.Module):
         pooled_output = self.dense(first_token_tensor)
         pooled_output = self.activation(pooled_output)
         return pooled_output
+
 class RobertaClassificationHead(nn.Module):
     """Head for sentence-level classification tasks."""
 
@@ -290,7 +291,7 @@ class TAEMIN_TOKEN_ATTENTION_RoBERTa(RobertaForSequenceClassification):
         self.value_dropout = nn.Dropout(0.1)
         self.classifier = RobertaClassificationHead(config)
         #self.roberta_add_pooling_layer = RobertaPooler(config)
-    def forward(self, input_ids=None, attention_mask=None, token_type_ids=None, index_ids=None, inputs_embeds=None,e1=None,e2=None):
+    def forward(self, input_ids=None, attention_mask=None, token_type_ids=None, index_ids=None, inputs_embeds=None):
 
         if inputs_embeds is None:
             inputs_embeds = self.roberta.embeddings.word_embeddings(input_ids)

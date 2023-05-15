@@ -30,14 +30,14 @@ class ERNet(pl.LightningModule):
             self.learning_rate = wandb_config.learning_rate
             self.weight_decay = wandb_config.weight_decay
 
-        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
-        self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        # self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
+        # self.model_config.num_labels = 30
+        # self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
 
-        # roberta_config = RobertaConfig.from_pretrained("klue/roberta-large", num_laels=30)
+        roberta_config = RobertaConfig.from_pretrained("klue/roberta-large", num_laels=30)
         #
-        # self.model = TAEMIN_RoBERTa_LSTM.from_pretrained("klue/roberta-large", config=roberta_config,
-        #                                                             state=state).to(device)
+        self.model = TAEMIN_TOKEN_ATTENTION_RoBERTa.from_pretrained("klue/roberta-large", config=roberta_config,
+                                                                    state=state).to(device)
         if state != 'train':
             self.model.resize_token_embeddings(32000 + 1)
 

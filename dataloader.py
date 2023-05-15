@@ -31,13 +31,13 @@ class ERDataModule(pl.LightningDataModule):
     def setup(self, stage: str):
         if stage == "fit":
             df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(self.dev_dataset_dir)
-            self.train_data = self.make_dataset_punct(df_train, state="train")
-            self.val_data = self.make_dataset_punct(df_val, state="train")
+            self.train_data = self.RE_make_dataset_for_roberta_attention(df_train, state="train")
+            self.val_data = self.RE_make_dataset_for_roberta_attention(df_val, state="train")
 
 
         elif stage == "test":
             df_test = pd.read_csv(self.test_dataset_dir)
-            self.test_data = self.make_dataset_punct(df_test, state="test")
+            self.test_data = self.RE_make_dataset_for_roberta_attention(df_test, state="test")
 
 
     def train_dataloader(self) -> DataLoader:
