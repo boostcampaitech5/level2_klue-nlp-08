@@ -57,27 +57,13 @@ class ERDataModule(pl.LightningDataModule):
         object_s_idx = []
         object_e_idx = []
         for i,j in zip(dataset['subject_entity'], dataset['object_entity']):
-            # sub_s_idx = int(i[1:-1].split(",")[1].split(":")[1])
-            # sub_e_idx = int(i[1:-1].split(",")[2].split(":")[1])
-            # obj_s_idx = int(j[1:-1].split(",")[1].split(":")[1])
-            # obj_e_idx = int(j[1:-1].split(",")[2].split(":")[1])
-            # i = i[1:-1].split(',')[0].split(':')[1]
-            # j = j[1:-1].split(',')[0].split(':')[1]
             sub_dict, obj_dict = eval(i), eval(j)
-            i = sub_dict["word"]
-            sub_s_idx = sub_dict["start_idx"]
-            sub_e_idx = sub_dict["end_idx"]
-            j = obj_dict["word"]
-            obj_s_idx = obj_dict["start_idx"]
-            obj_e_idx = obj_dict["end_idx"]
+            subject = sub_dict["word"]
+            object = obj_dict["word"]
 
-            subject_entity.append(i)
-            subject_s_idx.append(sub_s_idx)
-            subject_e_idx.append(sub_e_idx)
-            object_entity.append(j)
-            object_s_idx.append(obj_s_idx)
-            object_e_idx.append(obj_e_idx)
-        out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity, 'subject_start_idx':subject_s_idx, 'subject_end_idx':subject_e_idx, 'object_entity':object_entity, 'object_start_idx': object_s_idx, 'object_end_idx':object_e_idx, 'label':dataset['label'],})
+            subject_entity.append(subject)
+            object_entity.append(object)
+        out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity,'object_entity':object_entity,'label':dataset['label'],})
         return out_dataset
 
     def tokenized_dataset(self, dataset : pd.DataFrame, tokenizer: AutoTokenizer) -> Dict:
