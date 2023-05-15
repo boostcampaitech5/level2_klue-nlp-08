@@ -1,10 +1,12 @@
 import argparse
+import os
+import re
+from datetime import datetime
 
 import omegaconf
+import pytz
 import sklearn.metrics
-from torch.optim.lr_scheduler import ExponentialLR, LambdaLR, StepLR
-
-# from pl_bolts.optimizers.lr_scheduler import LinearWarmupCosineAnnealingLR
+from torch.optim.lr_scheduler import StepLR
 
 
 def klue_re_micro_f1(preds, labels):
@@ -35,11 +37,21 @@ def config_parser():
 
 def lr_scheduler(lr_scheduler_type, optimizer):
    if lr_scheduler_type == "stepLR":
-      return StepLR(optimizer, step_size=1, verbose=True)
-   elif lr_scheduler_type == "exponentialLR":
-      return ExponentialLR(optimizer, gamma = 0.9, verbose=True)
-   elif lr_scheduler_type == "lambdaLR":
-      return LambdaLR(optimizer, lr_lambda=lambda epoch: 0.8 ** epoch, verbose=True)
+      return StepLR(optimizer, step_size=1)
    # TODO 이외 lr scheduler 추가
    else:
-      raise ValueError(f"{lr_scheduler_type} : 정의되지 않은 lr scheduler type입니다.")
+      raise ValueError("정의되지 않은 lr scheduler type입니다.")
+
+def show_confusion_matrix(preds, labels, epoch, save_path):
+   now = datetime.now(pytz.timezone("Asia/Seoul"))
+
+   matrix = sklearn.metrics.confusion_matrix(y_pred=preds, y_true=labels)
+   os.makedirs("confusion_matrix", exist_ok=True)
+   os.makedirs(save_path, exist_ok=True)
+   with open(f"{save_path}/epoch:{epoch}&{now.strftime('%Y-%m-%d %H.%M.%S')}.txt", "w") as f:
+      content = str(matrix)
+      content = re.sub(r'\s+', ',', content)
+      content = re.sub(r'\d+', lambda m: f"{m.group(0):>4}", content)
+      content = re.sub(r'\],\[,', '\n', content)
+      content = content[2:-2]
+      f.write(content)

@@ -7,4 +7,5 @@ lightning_logs/*
 __pycache__/
 checkpoint/*
 wandb/*
+confusion_matrix/*
 my_code/*
