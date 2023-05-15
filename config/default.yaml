@@ -16,12 +16,36 @@ model :
   model_name : klue/bert-base
 
 wandb :
-  project_name : klue-bert-base_tuning
+  project_name : XXXX
+  name : klue-bert-sweep
+  method: grid
+  parameters : 
+    epochs : 
+      values : 
+      - 3
+      - 4
+      - 5
+      - 10
+    batch_size:
+      values: 
+      - 8
+      - 16
+      - 32
+    learning_rate:
+      values: 
+      - 0.00002 
+      - 0.00003 
+      - 0.00005
+    weight_decay:
+      values: 
+      - 0.0
+      - 0.01
+      - 0.1
 
 path:
   model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-11 22.09.58/epoch=1-val_micro_f1=62.60.ckpt
   train : ./dataset/train/new_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv
-
+  confusion_matrix : ./confusion_matrix/klue-bert-base
   
