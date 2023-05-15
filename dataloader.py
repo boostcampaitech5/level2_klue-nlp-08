@@ -51,11 +51,7 @@ class ERDataModule(pl.LightningDataModule):
     def preprocessing_dataset(self, dataset : pd.DataFrame) -> pd.DataFrame:
         """ 처음 불러온 csv 파일을 원하는 형태의 DataFrame으로 변경 시켜줍니다."""
         subject_entity = []
-        subject_s_idx = []
-        subject_e_idx = []
         object_entity = []
-        object_s_idx = []
-        object_e_idx = []
         for i,j in zip(dataset['subject_entity'], dataset['object_entity']):
             sub_dict, obj_dict = eval(i), eval(j)
             subject = sub_dict["word"]
@@ -71,18 +67,11 @@ class ERDataModule(pl.LightningDataModule):
         concat_entity = []
         for e01, e02 in zip(dataset['subject_entity'], dataset['object_entity']):
             temp = ''
-            temp = "<subj>" + e01 + "</subj>" + "<obj>" + e02 + "</obj>"
+            temp = e01 + '[SEP]' + e02
             concat_entity.append(temp)
-        new_sentences = []
-        for (sent, sub_s, sub_e, obj_s, obj_e) in zip(dataset["sentence"], dataset["subject_start_idx"], dataset["subject_end_idx"], dataset["object_start_idx"], dataset["object_end_idx"]):
-            if sub_e < obj_e:
-                new_sent = sent[:sub_s] + "<subj>" + sent[sub_s:sub_e+1] + "</subj>" + sent[sub_e+1:obj_s] + "<obj>" + sent[obj_s:obj_e+1] + "</obj>" + sent[obj_e+1:]
-            else:
-                new_sent = sent[:obj_s] + "<obj>" + sent[obj_s:obj_e+1] + "</obj>" + sent[obj_e+1:sub_s] + "<subj>" + sent[sub_s:sub_e+1] + "</subj>" + sent[sub_e+1:]
-            new_sentences.append(new_sent)
         tokenized_sentences = tokenizer(
             concat_entity,
-            new_sentences,
+            list(dataset['sentence']),
             return_tensors="pt",
             padding=True,
             truncation=True,
