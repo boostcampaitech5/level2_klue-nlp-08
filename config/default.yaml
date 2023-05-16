@@ -43,7 +43,7 @@ wandb :
       - 0.1
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-16 01.31.30/epoch=2-val_micro_f1=80.76.ckpt
   train : ./dataset/train/new_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv

@@ -36,6 +36,8 @@ if __name__ == "__main__":
     dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
     model = ERNet(config=config)
+    model.model.resize_token_embeddings(len(tokenizer))
+
 
     now = datetime.now(pytz.timezone("Asia/Seoul"))
 
