@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from transformers import BertConfig, BertForSequenceClassification
 
-from model_base import output_class
+from models.model_base import output_class
 
 
 class TAEMIN_CUSTOM_RBERT(BertForSequenceClassification):

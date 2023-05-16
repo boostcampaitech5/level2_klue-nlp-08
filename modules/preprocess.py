@@ -25,7 +25,7 @@ def preprocessing_dataset(dataset : pd.DataFrame) -> pd.DataFrame:
         object = obj_dict["word"]
         obj_s_idx = obj_dict["start_idx"]
         obj_e_idx = obj_dict["end_idx"]
-        obj_type = obj_type["type"]
+        obj_type = obj_dict["type"]
 
         subject_entity.append(subject)
         subject_s_idx.append(sub_s_idx)

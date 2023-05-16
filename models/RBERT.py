@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from transformers import BertConfig, BertForSequenceClassification
 
-from model_base import FCLayer, output_class
+from models.model_base import FCLayer, output_class
 
 
 class RBERT(BertForSequenceClassification):

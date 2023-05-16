@@ -1,13 +1,12 @@
 import torch
-from transformers import (AutoConfig, AutoModelForSequenceClassification,
-                          RobertaConfig)
+from transformers import AutoConfig, AutoModelForSequenceClassification
 
-from RBERT import RBERT
-from TAEMIN_CUSTOM_RBERT import TAEMIN_CUSTOM_RBERT
-from TAEMIN_R_RoBERTa import TAEMIN_R_RoBERTa
-from TAEMIN_RoBERTa_LSTM import TAEMIN_RoBERTa_LSTM
-from TAEMIN_TOKEN_ATTENTION_BERT import TAEMIN_TOKEN_ATTENTION_BERT
-from TAEMIN_TOKEN_ATTENTION_RoBERTa import TAEMIN_TOKEN_ATTENTION_RoBERTa
+from models.RBERT import RBERT
+from models.TAEMIN_CUSTOM_RBERT import TAEMIN_CUSTOM_RBERT
+from models.TAEMIN_R_RoBERTa import TAEMIN_R_RoBERTa
+from models.TAEMIN_RoBERTa_LSTM import TAEMIN_RoBERTa_LSTM
+from models.TAEMIN_TOKEN_ATTENTION_BERT import TAEMIN_TOKEN_ATTENTION_BERT
+from models.TAEMIN_TOKEN_ATTENTION_RoBERTa import TAEMIN_TOKEN_ATTENTION_RoBERTa
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
