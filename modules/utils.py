@@ -94,7 +94,7 @@ def get_special_token(dataset_type : str) -> List:
    elif dataset_type == "type_entity":
       return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
    elif dataset_type == "ainize":
-      return ["<subj>, </subj>, <obj>, </obj>"]
+      return []
    else:
       raise ValueError("정의되지 않은 dataset type입니다.")
 
