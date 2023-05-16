@@ -10,10 +10,31 @@ train :
   num_train_epoch : 3
   weight_decay : 0.01
   learning_rate : 5e-5
-  lr_scheduler : stepLR
+
+  # modules/schedulers.py
+  lr_scheduler : stepLR  #[stepLR]
+
+  # modules/optimizers.py
+  optimizer : AdamW  #[AdamW, Adam, SGD]
+
+  # modules/losses.py
+  loss : cross_entropy  #[cross_entropy, focal_loss]
+
+  # modules/datasets.py
+  dataset_type : ainize  #[default, punct, type_entity, ainize] 
 
 model :
-  model_name : klue/bert-base
+  # models/utils.py
+  model_name : ainize/klue-bert-base-re 
+  #[
+  # TAEMIN_TOKEN_ATTENTION_RoBERTa, 
+  # TAEMIN_TOKEN_ATTENTION_BERT,
+  # TAEMIN_RoBERTa_LSTM,
+  # TAEMIN_R_RoBERTa,
+  # TAEMIN_CUSTOM_RBERT,
+  # RBERT,
+  # 그 외 허깅페이스 모델들
+  #]
 
 wandb :
   project_name : XXXX
@@ -43,7 +64,7 @@ wandb :
       - 0.1
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-15 11.12.37/epoch=2-val_micro_f1=90.60.ckpt
   train : ./dataset/train/new_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv

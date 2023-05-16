@@ -1,12 +1,15 @@
 import argparse
 import os
+import pickle
 import re
 from datetime import datetime
+from typing import Dict, List
 
 import omegaconf
 import pytz
 import sklearn.metrics
-from torch.optim.lr_scheduler import StepLR
+import torch
+from transformers import BatchEncoding
 
 
 def klue_re_micro_f1(preds, labels):
@@ -35,13 +38,6 @@ def config_parser():
    config = omegaconf.OmegaConf.load(args.config)
    return config
 
-def lr_scheduler(lr_scheduler_type, optimizer):
-   if lr_scheduler_type == "stepLR":
-      return StepLR(optimizer, step_size=1)
-   # TODO 이외 lr scheduler 추가
-   else:
-      raise ValueError("정의되지 않은 lr scheduler type입니다.")
-
 def show_confusion_matrix(preds, labels, epoch, save_path):
    now = datetime.now(pytz.timezone("Asia/Seoul"))
 
@@ -55,3 +51,50 @@ def show_confusion_matrix(preds, labels, epoch, save_path):
       content = re.sub(r'\],\[,', '\n', content)
       content = content[2:-2]
       f.write(content)
+
+def label_to_num(label : str) -> int:
+   with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "pickle", 'dict_label_to_num.pkl'), 'rb') as f:
+      dict_label_to_num = pickle.load(f)
+   return dict_label_to_num[label]
+
+def num_to_label(label : List[int]) -> List[str]:
+   origin_label = []
+   with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "pickle", 'dict_num_to_label.pkl'), 'rb') as f:
+      dict_num_to_label = pickle.load(f)
+   for v in label:
+      origin_label.append(dict_num_to_label[v])
+   
+   return origin_label
+
+def make_index_ids_roberta(tokenized_sentences: Dict) -> BatchEncoding:
+      index_ids = []
+      for i in range(len(tokenized_sentences.data['attention_mask'])):
+         index_number = 0
+         temp_input_ids = tokenized_sentences.data['input_ids'][i]
+         index_tensor = torch.zeros_like(temp_input_ids)
+
+         for index, value in enumerate(temp_input_ids):
+               if value == 1:
+                  break
+               if value >= 32000 and value <= 32005:
+                  index_number = 1
+               if value > 32005:
+                  index_number = 0
+               index_tensor[index] = index_number
+               if value >= 32000:
+                  index_tensor[index] = 0
+         index_ids.append(list(index_tensor.to(dtype=torch.int64)))
+      return torch.tensor(index_ids)
+
+def get_special_token(dataset_type : str) -> List:
+   if dataset_type == "default":
+      return []
+   elif dataset_type == "punct":
+      return []
+   elif dataset_type == "type_entity":
+      return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
+   elif dataset_type == "ainize":
+      return ["<subj>, </subj>, <obj>, </obj>"]
+   else:
+      raise ValueError("정의되지 않은 dataset type입니다.")
+
