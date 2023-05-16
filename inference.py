@@ -6,7 +6,7 @@ from transformers import AutoTokenizer
 
 from dataloader import ERDataModule
 from model import ERNet
-from utils import config_parser
+from modules.utils import config_parser, get_special_token
 
 if __name__ == "__main__":
 
@@ -18,9 +18,8 @@ if __name__ == "__main__":
     prj_dir = os.path.dirname(os.path.abspath(__file__))
 
     MODEL_NAME = config["model"]["model_name"]
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME,)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, additional_special_token = get_special_token(config["train"]["dataset_type"]))
 
-    # dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "test", "test_data.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
     model = ERNet.load_from_checkpoint(config["path"]["model"], config=config, resize_token_embedding=len(tokenizer))
     trainer = pl.Trainer(max_epochs = config["train"]["num_train_epoch"])
