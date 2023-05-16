@@ -1,21 +1,19 @@
 import os
-import pickle
-import statistics
-from typing import List
 
 import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-from torch.optim.lr_scheduler import StepLR
-from transformers import (AutoConfig, AutoModelForSequenceClassification,
-                          AutoTokenizer)
 
-from utils import klue_re_micro_f1, lr_scheduler, show_confusion_matrix
+from modules.losses import get_loss
+from modules.optimizers import get_optimizer
+from modules.schedulers import get_scheduler
+from modules.utils import klue_re_micro_f1, show_confusion_matrix, num_to_label
 
+from models.utils import get_model
 
 class ERNet(pl.LightningModule):
-    def __init__(self, config, wandb_config=None):
+    def __init__(self, config, wandb_config=None, resize_token_embedding=None, state=None):
         super().__init__()
 
         if wandb_config == None:
@@ -25,13 +23,17 @@ class ERNet(pl.LightningModule):
             self.learning_rate = wandb_config.learning_rate
             self.weight_decay = wandb_config.weight_decay
 
-        self.model_config = AutoConfig.from_pretrained(config["model"]["model_name"])
-        self.model_config.num_labels = 30
-        self.model = AutoModelForSequenceClassification.from_pretrained(config["model"]["model_name"], config=self.model_config)
+        self.model = get_model(model_name=config["model"]["model_name"], state=state)
+        if resize_token_embedding:
+            self.model.resize_token_embeddings(resize_token_embedding)
+
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
+        self.optimizer_type = config["train"]["optimizer"]
+        self.loss_type = config["train"]["loss"]
 
         self.train_step = 0
-        self.val_epoch = -1
+
+        self.confusion_matrix_path = config["path"]["confusion_matrix"]
 
         self.validation_step_outputs = []
         self.validation_preds = []
@@ -45,14 +47,18 @@ class ERNet(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
-        scheduler = lr_scheduler(lr_scheduler_type=self.lr_scheduler_type, optimizer=optimizer)
+        optimizer = get_optimizer(optimizer_type=self.optimizer_type)
+        optimizer = optimizer(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        scheduler = get_scheduler(scheduler_type=self.lr_scheduler_type)
+        scheduler = scheduler(optimizer, step_size=1)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
-        loss = F.cross_entropy(y_hat, y)
+        loss = get_loss(self.loss_type)
+        loss = loss()
+        loss = loss(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
         if self.train_step % 100 == 0:
@@ -88,14 +94,13 @@ class ERNet(pl.LightningModule):
 
         self.log_dict({'val_micro_f1': val_micro_f1, 'val_loss': avg_loss})
 
-        if self.val_epoch >= 0:
+        if self.current_epoch >= 0:
             print(f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}")
-            show_confusion_matrix(preds=val_preds, labels=val_labels, epoch = self.val_epoch)
+            show_confusion_matrix(preds=val_preds, labels=val_labels, epoch=self.current_epoch, save_path=self.confusion_matrix_path)
 
         self.validation_step_outputs.clear()
         self.validation_preds.clear()
         self.validation_labels.clear()
-        self.val_epoch += 1
 
     def test_step(self, batch, _):
         x = batch
@@ -107,20 +112,8 @@ class ERNet(pl.LightningModule):
         return pred
 
     def on_test_epoch_end(self):
-        pred_answer = self.num_to_label(self.output_pred)
+        pred_answer = num_to_label(self.output_pred)
         test_id = list(range(len(self.output_pred)))
         output = pd.DataFrame({'id':test_id,'pred_label':pred_answer,'probs':self.output_prob})
         os.makedirs("prediction", exist_ok=True)
         output.to_csv('./prediction/submission.csv', index=False)
-
-    def num_to_label(self, label : List[int]) -> List[str]:
-        """
-        숫자로 되어 있던 class를 원본 문자열 라벨로 변환 합니다.
-        """
-        origin_label = []
-        with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pickle", 'dict_num_to_label.pkl'), 'rb') as f:
-            dict_num_to_label = pickle.load(f)
-        for v in label:
-            origin_label.append(dict_num_to_label[v])
-        
-        return origin_label
