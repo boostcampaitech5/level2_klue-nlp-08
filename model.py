@@ -1,6 +1,4 @@
 import os
-import pickle
-from typing import List
 
 import pandas as pd
 import pytorch_lightning as pl
@@ -119,15 +117,3 @@ class ERNet(pl.LightningModule):
         output = pd.DataFrame({'id':test_id,'pred_label':pred_answer,'probs':self.output_prob})
         os.makedirs("prediction", exist_ok=True)
         output.to_csv('./prediction/submission.csv', index=False)
-
-    # def num_to_label(self, label : List[int]) -> List[str]:
-    #     """
-    #     숫자로 되어 있던 class를 원본 문자열 라벨로 변환 합니다.
-    #     """
-    #     origin_label = []
-    #     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pickle", 'dict_num_to_label.pkl'), 'rb') as f:
-    #         dict_num_to_label = pickle.load(f)
-    #     for v in label:
-    #         origin_label.append(dict_num_to_label[v])
-        
-    #     return origin_label

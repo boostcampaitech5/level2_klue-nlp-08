@@ -21,11 +21,11 @@ train :
   loss : cross_entropy  #[cross_entropy, focal_loss]
 
   # modules/datasets.py
-  dataset_type : default  #[default, punct, type_entity] 
+  dataset_type : ainize  #[default, punct, type_entity, ainize] 
 
 model :
   # models/utils.py
-  model_name : klue/bert-base  
+  model_name : ainize/klue-bert-base-re 
   #[
   # TAEMIN_TOKEN_ATTENTION_RoBERTa, 
   # TAEMIN_TOKEN_ATTENTION_BERT,
@@ -64,7 +64,7 @@ wandb :
       - 0.1
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-15 11.12.37/epoch=2-val_micro_f1=90.60.ckpt
   train : ./dataset/train/new_train.csv
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv

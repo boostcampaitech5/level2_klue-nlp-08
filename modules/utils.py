@@ -53,13 +53,13 @@ def show_confusion_matrix(preds, labels, epoch, save_path):
       f.write(content)
 
 def label_to_num(label : str) -> int:
-      with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "pickle", 'dict_label_to_num.pkl'), 'rb') as f:
-         dict_label_to_num = pickle.load(f)
-      return dict_label_to_num[label]
+   with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "pickle", 'dict_label_to_num.pkl'), 'rb') as f:
+      dict_label_to_num = pickle.load(f)
+   return dict_label_to_num[label]
 
 def num_to_label(label : List[int]) -> List[str]:
    origin_label = []
-   with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "pickle", 'dict_num_to_label.pkl'), 'rb') as f:
+   with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, "pickle", 'dict_num_to_label.pkl'), 'rb') as f:
       dict_num_to_label = pickle.load(f)
    for v in label:
       origin_label.append(dict_num_to_label[v])
@@ -93,6 +93,8 @@ def get_special_token(dataset_type : str) -> List:
       return []
    elif dataset_type == "type_entity":
       return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
+   elif dataset_type == "ainize":
+      return ["<subj>, </subj>, <obj>, </obj>"]
    else:
       raise ValueError("정의되지 않은 dataset type입니다.")
 
