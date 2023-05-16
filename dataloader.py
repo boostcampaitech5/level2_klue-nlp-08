@@ -78,19 +78,25 @@ class ERDataModule(pl.LightningDataModule):
             sub_s = dataset.iloc[i]["subject_entity"]["start_idx"]
             sub_e = dataset.iloc[i]["subject_entity"]["end_idx"]
             sub_type = dataset.iloc[i]["subject_entity"]["type"]
+            sub_word = dataset.iloc[i]["subject_entity"]["word"]
+            
             obj_s = dataset.iloc[i]["object_entity"]["start_idx"]
             obj_e = dataset.iloc[i]["object_entity"]["end_idx"]
             obj_type = dataset.iloc[i]["object_entity"]["type"]
+            obj_word = dataset.iloc[i]["object_entity"]["word"]
+
             if sub_s < obj_s:
                 new_sent = (
                     sent[:sub_s]
                     + "[SUB:"
                     + sub_type
                     + "]"
+                    + sub_word
                     + sent[sub_e + 1 : obj_s]
                     + "[OBJ:"
                     + obj_type
                     + "]"
+                    + obj_word
                     + sent[obj_e + 1 :]
                 )
             else:
@@ -99,10 +105,12 @@ class ERDataModule(pl.LightningDataModule):
                     + "[OBJ:"
                     + obj_type
                     + "]"
+                    + obj_word
                     + sent[obj_e + 1 : sub_s]
                     + "[SUB:"
                     + sub_type
                     + "]"
+                    + sub_word
                     + sent[sub_e + 1 :]
                 )
             sentence.append(new_sent)

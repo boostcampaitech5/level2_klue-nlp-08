@@ -44,8 +44,8 @@ wandb :
 
 path:
   model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-16 01.31.30/epoch=2-val_micro_f1=80.76.ckpt
-  train : ./dataset/train/new_train.csv
-  dev : ./dataset/train/new_dev.csv
+  train : ./dataset/train/train.csv
+  dev : ./dataset/train/forbidden_val.csv
   test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue-bert-base
   
