@@ -13,5 +13,5 @@ save_path:
 
 mode : 
   #hard_voting 
-  #possibility 
-  weighted_score
+  possibility 
+  #weighted_score
