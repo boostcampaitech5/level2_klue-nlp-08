@@ -1,51 +1,71 @@
-seed : 42
+seed: 42
 
-data : 
-  train_batch_size : 16
-  val_batch_size : 16
-  test_batch_size : 16
-  tokenizer_max_len : 256
+data:
+  train_batch_size: 16
+  val_batch_size: 16
+  test_batch_size: 16
+  tokenizer_max_len: 256
 
-train :
-  num_train_epoch : 3
-  weight_decay : 0.01
-  learning_rate : 5e-5
-  lr_scheduler : stepLR
+train:
+  num_train_epoch: 3
+  weight_decay: 0.01
+  learning_rate: 5e-5
 
-model :
-  model_name : klue/bert-base
+  # modules/schedulers.py
+  lr_scheduler: stepLR #[stepLR]
 
-wandb :
-  project_name : XXXX
-  name : klue-bert-sweep
+  # modules/optimizers.py
+  optimizer: AdamW #[AdamW, Adam, SGD]
+
+  # modules/losses.py
+  loss: cross_entropy #[cross_entropy, focal_loss]
+
+  # modules/datasets.py
+  dataset_type: ainize #[default, punct, type_entity, ainize]
+
+model:
+  # models/utils.py
+  model_name: ainize/klue-bert-base-re
+  #[
+  # TAEMIN_TOKEN_ATTENTION_RoBERTa,
+  # TAEMIN_TOKEN_ATTENTION_BERT,
+  # TAEMIN_RoBERTa_LSTM,
+  # TAEMIN_R_RoBERTa,
+  # TAEMIN_CUSTOM_RBERT,
+  # RBERT,
+  # 그 외 허깅페이스 모델들
+  #]
+
+wandb:
+  project_name: XXXX
+  name: klue-bert-sweep
   method: grid
-  parameters : 
-    epochs : 
-      values : 
-      - 3
-      - 4
-      - 5
-      - 10
+  parameters:
+    epochs:
+      values:
+        - 3
+        - 4
+        - 5
+        - 10
     batch_size:
-      values: 
-      - 8
-      - 16
-      - 32
+      values:
+        - 8
+        - 16
+        - 32
     learning_rate:
-      values: 
-      - 0.00002 
-      - 0.00003 
-      - 0.00005
+      values:
+        - 0.00002
+        - 0.00003
+        - 0.00005
     weight_decay:
-      values: 
-      - 0.0
-      - 0.01
-      - 0.1
+      values:
+        - 0.0
+        - 0.01
+        - 0.1
 
 path:
-  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-16 01.31.30/epoch=2-val_micro_f1=80.76.ckpt
-  train : ./dataset/train/train.csv
-  dev : ./dataset/train/forbidden_val.csv
-  test : ./dataset/test/test_data.csv
-  confusion_matrix : ./confusion_matrix/klue-bert-base
-  
+  model: /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-15 11.12.37/epoch=2-val_micro_f1=90.60.ckpt
+  train: ./dataset/train/new_train.csv
+  dev: ./dataset/train/new_dev.csv
+  test: ./dataset/test/test_data.csv
+  confusion_matrix: ./confusion_matrix/klue-bert-base

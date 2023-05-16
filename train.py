@@ -8,7 +8,7 @@ from transformers import AutoTokenizer
 
 from dataloader import ERDataModule
 from model import ERNet
-from utils import config_parser
+from modules.utils import config_parser, get_special_token
 
 if __name__ == "__main__":
     config = config_parser()
@@ -18,26 +18,14 @@ if __name__ == "__main__":
     prj_dir = os.path.dirname(os.path.abspath(__file__))
 
     MODEL_NAME = config["model"]["model_name"]
-    additional_special_tokens_list = [
-        "[SUB:LOC]",
-        "[SUB:PER]",
-        "[SUB:ORG]",
-        "[OBJ:NOH]",
-        "[OBJ:DAT]",
-        "[OBJ:PER]",
-        "[OBJ:POH]",
-        "[OBJ:LOC]",
-        "[OBJ:ORG]",
-    ]
     tokenizer = AutoTokenizer.from_pretrained(
-        MODEL_NAME, additional_special_tokens=additional_special_tokens_list
+        MODEL_NAME,
+        additional_special_token=get_special_token(config["train"]["dataset_type"]),
     )
 
-    dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "train", "train.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
-    model = ERNet(config=config)
+    model = ERNet(config=config, state="train")
     model.model.resize_token_embeddings(len(tokenizer))
-
 
     now = datetime.now(pytz.timezone("Asia/Seoul"))
 

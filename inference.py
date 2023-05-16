@@ -6,35 +6,25 @@ from transformers import AutoTokenizer
 
 from dataloader import ERDataModule
 from model import ERNet
-from utils import config_parser
+from modules.utils import config_parser, get_special_token
 
 if __name__ == "__main__":
-
     config = config_parser()
 
     pl.seed_everything(config["seed"], workers=True)
-    
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     prj_dir = os.path.dirname(os.path.abspath(__file__))
 
     MODEL_NAME = config["model"]["model_name"]
-    additional_special_tokens_list = [
-        "[SUB:LOC]",
-        "[SUB:PER]",
-        "[SUB:ORG]",
-        "[OBJ:NOH]",
-        "[OBJ:DAT]",
-        "[OBJ:PER]",
-        "[OBJ:POH]",
-        "[OBJ:LOC]",
-        "[OBJ:ORG]",
-    ]
     tokenizer = AutoTokenizer.from_pretrained(
-        MODEL_NAME, additional_special_tokens=additional_special_tokens_list
+        MODEL_NAME,
+        additional_special_token=get_special_token(config["train"]["dataset_type"]),
     )
 
-    dataset_dir = os.path.join(prj_dir, os.pardir, "dataset", "test", "test_data.csv")
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
-    model = ERNet.load_from_checkpoint(config["path"]["model"], config=config, resize_token_embedding=len(tokenizer))
-    trainer = pl.Trainer(max_epochs = config["train"]["num_train_epoch"])
+    model = ERNet.load_from_checkpoint(
+        config["path"]["model"], config=config, resize_token_embedding=len(tokenizer)
+    )
+    trainer = pl.Trainer(max_epochs=config["train"]["num_train_epoch"])
     trainer.test(model=model, datamodule=dataloader)
