@@ -57,7 +57,7 @@ class ERNet(pl.LightningModule):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
         loss = get_loss(self.loss_type)
-        loss = loss()
+        loss = loss(label_smoothing=0.1)
         loss = loss(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
