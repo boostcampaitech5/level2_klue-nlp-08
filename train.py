@@ -19,7 +19,7 @@ if __name__ == "__main__":
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(
         MODEL_NAME,
-        additional_special_token=get_special_token(config["train"]["dataset_type"]),
+        additional_special_tokens=get_special_token(config["train"]["dataset_type"]),
     )
 
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
