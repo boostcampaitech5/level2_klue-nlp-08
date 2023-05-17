@@ -12,6 +12,6 @@ save_path:
   ./prediction/ensemble.csv
 
 mode : 
-  #hard_voting 
-  possibility 
+  hard_voting 
+  #possibility 
   #weighted_score
