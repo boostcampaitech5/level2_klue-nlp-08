@@ -88,13 +88,23 @@ def make_index_ids_roberta(tokenized_sentences: Dict) -> BatchEncoding:
 
 def get_special_token(dataset_type : str) -> List:
    if dataset_type == "default":
-      return []
+      return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
    elif dataset_type == "punct":
       return []
    elif dataset_type == "type_entity":
       return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
    elif dataset_type == "ainize":
       return []
+   elif dataset_type == "type_entity_v2":
+      return [
+      "[SUB:DAT]", "[/SUB:DAT]", "[OBJ:DAT]", "[/OBJ:DAT]",
+      "[SUB:LOC]", "[/SUB:LOC]", "[OBJ:LOC]", "[/OBJ:LOC]",
+      "[SUB:NOH]", "[/SUB:NOH]", "[OBJ:NOH]", "[/OBJ:NOH]",
+      "[SUB:ORG]", "[/SUB:ORG]", "[OBJ:ORG]", "[/OBJ:ORG]",
+      "[SUB:PER]", "[/SUB:PER]", "[OBJ:PER]", "[/OBJ:PER]",
+      "[SUB:POH]", "[/SUB:POH]", "[OBJ:POH]", "[/OBJ:POH]", 
+    ]
    else:
       raise ValueError("정의되지 않은 dataset type입니다.")
+   
 
