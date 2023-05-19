@@ -45,7 +45,7 @@ class Ensemble:
         for i in range(self.df_number):
             self.ensemble[f"probs_candidate{i+1}"] = self.data_list[i]["probs"]
 
-        for i in tqdm(range(len(self.ensemble)), desc="Making Ensemble"):
+        for i in tqdm(range(len(self.ensemble)), desc="Making Possbility Ensemble"):
             probs = []
             new_prob = [0] * 30
 

@@ -1,17 +1,17 @@
 data_path_list:
-  - ./prediction/BERT-Optimizer_Adabelief.csv
-  - ./prediction/Punc_roberta.csv
-  - ./prediction/Taemin_Attention_Roberta.csv
+  - /Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/prediction/tapt_sangwon.csv
+  - /Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/prediction/hj_submission.csv
+  - /Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/prediction/submission(2).csv
 
 model_f1_score: 
-  - 71.7640
-  - 70.8052
-  - 66.9393
+  - 73.62
+  - 73.06
+  - 72.7
 
 save_path:
-  ./prediction/ensemble.csv
+  ./prediction/ensemble_BestofBest_possibility.csv
 
 mode : 
-  hard_voting 
-  #possibility 
+  #hard_voting 
+  possibility 
   #weighted_score
