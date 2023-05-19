@@ -4,16 +4,17 @@ import pandas as pd
 import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
-
+from models.utils import get_model
 from modules.losses import get_loss
 from modules.optimizers import get_optimizer
 from modules.schedulers import get_scheduler
-from modules.utils import klue_re_micro_f1, show_confusion_matrix, num_to_label
+from modules.utils import klue_re_micro_f1, num_to_label, show_confusion_matrix
 
-from models.utils import get_model
 
 class ERNet(pl.LightningModule):
-    def __init__(self, config, wandb_config=None, resize_token_embedding=None, state=None):
+    def __init__(
+        self, config, wandb_config=None, resize_token_embedding=None, state=None
+    ):
         super().__init__()
 
         if wandb_config == None:
@@ -48,9 +49,11 @@ class ERNet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = get_optimizer(optimizer_type=self.optimizer_type)
-        optimizer = optimizer(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
+        optimizer = optimizer(
+            self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay
+        )
         scheduler = get_scheduler(scheduler_type=self.lr_scheduler_type)
-        scheduler = scheduler(optimizer, step_size=1)
+        scheduler = scheduler(optimizer, step_size=1, gamma=0.3)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):
@@ -59,10 +62,19 @@ class ERNet(pl.LightningModule):
         loss = get_loss(self.loss_type)
         loss = loss(label_smoothing=0.1)
         loss = loss(y_hat, y)
-        micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
-        self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
+        micro_f1 = klue_re_micro_f1(
+            y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu()
+        )
+        self.log_dict(
+            {"train_micro_f1": micro_f1, "train_loss": loss},
+            on_epoch=True,
+            prog_bar=True,
+            logger=True,
+        )
         if self.train_step % 100 == 0:
-            print(f"learning_rate : {self.optimizers().optimizer.param_groups[0]['lr']}")
+            print(
+                f"learning_rate : {self.optimizers().optimizer.param_groups[0]['lr']}"
+            )
         self.train_step += 1
         return loss
 
@@ -78,7 +90,7 @@ class ERNet(pl.LightningModule):
         correct = pred.eq(y.view_as(pred)).sum().item()
         micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu()).item()
 
-        preds = {"val_micro_f1": micro_f1, "val_loss" : loss, "correct" : correct}
+        preds = {"val_micro_f1": micro_f1, "val_loss": loss, "correct": correct}
         self.validation_step_outputs.append(preds)
 
         self.validation_preds.extend(pred.tolist())
@@ -86,17 +98,26 @@ class ERNet(pl.LightningModule):
         return preds
 
     def on_validation_epoch_end(self):
-        avg_loss = torch.stack([x['val_loss'] for x in self.validation_step_outputs]).mean()
+        avg_loss = torch.stack(
+            [x["val_loss"] for x in self.validation_step_outputs]
+        ).mean()
         # val_micro_f1 = statistics.mean([x['val_micro_f1'] for x in self.validation_step_outputs])
         val_preds = torch.tensor(self.validation_preds).detach().cpu()
         val_labels = torch.tensor(self.validation_labels).detach().cpu()
         val_micro_f1 = klue_re_micro_f1(val_preds, val_labels)
 
-        self.log_dict({'val_micro_f1': val_micro_f1, 'val_loss': avg_loss})
+        self.log_dict({"val_micro_f1": val_micro_f1, "val_loss": avg_loss})
 
         if self.current_epoch >= 0:
-            print(f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}")
-            show_confusion_matrix(preds=val_preds, labels=val_labels, epoch=self.current_epoch, save_path=self.confusion_matrix_path)
+            print(
+                f"{{Epoch {self.current_epoch} val_micro_f1': {val_micro_f1} val_loss : {avg_loss}}}"
+            )
+            show_confusion_matrix(
+                preds=val_preds,
+                labels=val_labels,
+                epoch=self.current_epoch,
+                save_path=self.confusion_matrix_path,
+            )
 
         self.validation_step_outputs.clear()
         self.validation_preds.clear()
@@ -114,6 +135,8 @@ class ERNet(pl.LightningModule):
     def on_test_epoch_end(self):
         pred_answer = num_to_label(self.output_pred)
         test_id = list(range(len(self.output_pred)))
-        output = pd.DataFrame({'id':test_id,'pred_label':pred_answer,'probs':self.output_prob})
+        output = pd.DataFrame(
+            {"id": test_id, "pred_label": pred_answer, "probs": self.output_prob}
+        )
         os.makedirs("prediction", exist_ok=True)
-        output.to_csv('./prediction/submission.csv', index=False)
+        output.to_csv("./prediction/submission.csv", index=False)

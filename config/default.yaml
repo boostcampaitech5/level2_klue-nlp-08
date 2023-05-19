@@ -69,4 +69,3 @@ path:
   dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue-bert-base
-  
