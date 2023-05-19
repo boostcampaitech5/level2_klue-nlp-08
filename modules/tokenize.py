@@ -159,7 +159,7 @@ def tokenized_dataset_ainize_token(dataset : pd.DataFrame, tokenizer: AutoTokeni
 
 
 def tokenized_dataset_type_entity_token_v2(dataset : pd.DataFrame, tokenizer: AutoTokenizer, tokenizer_max_len : int) -> Dict:
-    """예시 : [ORG]비틀즈[/ORG][SEP][PER]조지해리슨[/PER][SEP]〈Something〉는 [PER]조지 해리슨[/PER]이 쓰고 [ORG]비틀즈[ORG]가 1969년 앨범 《Abbey Road》에 담은 노래다. """
+    """예시 : [SUB:ORG]비틀즈[/SUB:ORG][SEP][OBJ:PER]조지해리슨[/OBJ:PER][SEP]〈Something〉는 [OBJ:PER]조지 해리슨[/OBJ:PER]이 쓰고 [SUB:ORG]비틀즈[/SUB:ORG]가 1969년 앨범 《Abbey Road》에 담은 노래다. """
     concat_entity = []
     for e01, sub_type, e02, obj_type in zip(dataset['subject_entity'], dataset["subject_entity_type"], dataset['object_entity'], dataset["object_entity_type"]):
         s_type = f'[SUB:{sub_type}]' #사람

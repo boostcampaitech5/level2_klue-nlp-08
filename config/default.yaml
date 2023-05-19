@@ -1,4 +1,4 @@
-seed : 42
+seed : 43
 data :
   train_batch_size : 16
   val_batch_size : 16
@@ -9,7 +9,7 @@ train :
   weight_decay : 0.0001
   learning_rate : 2e-5
   # modules/schedulers.py
-  lr_scheduler : stepLR  #[stepLR]
+  lr_scheduler : CosineLR  #[stepLR]
   # modules/optimizers.py
   optimizer : Adabelief  #[AdamW, Adam, SGD]
   # modules/losses.py
@@ -55,8 +55,8 @@ wandb :
       - 0.01
       - 0.1
 path:
-  model : /opt/ml/level2_klue-nlp-08/checkpoint/SangwonYoon_klue-roberta-large-tapt/2023-05-17 22.57.54/epoch=3-val_micro_f1=72.63.ckpt
-  train : ./dataset/train/final_data.csv
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/SangwonYoon_klue-roberta-large-tapt/2023-05-18 11.00.55/epoch=5-val_micro_f1=73.62.ckpt
+  train : ./dataset/train/train.csv
   dev : ./dataset/train/forbidden_val.csv
   test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue/roberta-large
