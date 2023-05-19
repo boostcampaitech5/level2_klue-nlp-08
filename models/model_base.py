@@ -38,7 +38,7 @@ class RobertaClassificationHead(nn.Module):
         return x
         
 class output_class:
-    def __init__(self,output,ner_outputs):
+    def __init__(self,output=None,ner_outputs=None):
         self.logits = output
         self.ner_logits = ner_outputs
 

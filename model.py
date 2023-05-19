@@ -55,15 +55,11 @@ class ERNet(pl.LightningModule):
 
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
-        y_hat = self(x).logits
-        y_hat_ner = self(x).ner_logits
-        loss = get_loss(self.loss_type)
-        loss_ner = get_loss(self.loss_type)
-        loss = loss(label_smoothing=0.2)
-        loss_ner = loss_ner(label_smoothing=0.2)
-        loss = loss.forward(y_hat, y)
-        loss_ner = loss_ner(y_hat_ner,batch["ner_list"].view(-1).to(torch.int64))
-        loss = loss + loss_ner
+        if self(x).ner_logiths != None:
+            loss,y_hat = self.mulit_loss(batch,y,x)
+        else:
+            y_hat = self(x).logits
+            loss = F.cross_entropy(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
         if self.train_step % 100 == 0:
@@ -125,3 +121,14 @@ class ERNet(pl.LightningModule):
         output = pd.DataFrame({'id':test_id,'pred_label':pred_answer,'probs':self.output_prob})
         os.makedirs("prediction", exist_ok=True)
         output.to_csv('./prediction/submission.csv', index=False)
+    def mulit_loss(self,batch,y,x):
+        y_hat = self(x).logits
+        y_hat_ner = self(x).ner_logits
+        loss = get_loss(self.loss_type)
+        loss_ner = get_loss(self.loss_type)
+        loss = loss(label_smoothing=0.2)
+        loss_ner = loss_ner(label_smoothing=0.2)
+        loss = loss.forward(y_hat, y)
+        loss_ner = loss_ner(y_hat_ner, batch["ner_list"].view(-1).to(torch.int64))
+        loss = loss + loss_ner
+        return loss,y_hat
