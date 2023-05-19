@@ -31,7 +31,6 @@ class ERNet(pl.LightningModule):
         self.lr_scheduler_type = config["train"]["lr_scheduler"]
         self.optimizer_type = config["train"]["optimizer"]
         self.loss_type = config["train"]["loss"]
-        self.predict = config["path"]["predict"]
 
         self.train_step = 0
 
@@ -61,7 +60,7 @@ class ERNet(pl.LightningModule):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
         loss = get_loss(self.loss_type)
-        loss = loss()
+        loss = loss(label_smoothing=0.1)
         loss = loss(y_hat, y)
         micro_f1 = klue_re_micro_f1(
             y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu()
@@ -140,4 +139,4 @@ class ERNet(pl.LightningModule):
             {"id": test_id, "pred_label": pred_answer, "probs": self.output_prob}
         )
         os.makedirs("prediction", exist_ok=True)
-        output.to_csv(f"./prediction/{self.predict}.csv", index=False)
+        output.to_csv("./prediction/submission.csv", index=False)
