@@ -21,9 +21,12 @@ if __name__ == "__main__":
     pl.seed_everything(config["seed"], workers=True)
 
     prj_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     MODEL_NAME = config["model"]["model_name"]
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, additional_special_token = get_special_token(config["train"]["dataset_type"]))
+    tokenizer = AutoTokenizer.from_pretrained(
+        MODEL_NAME,
+        additional_special_tokens=get_special_token(config["train"]["dataset_type"]),
+    )
 
     dataloader = ERDataModule(config=config, tokenizer=tokenizer)
     model = ERNet(config=config, state="train")
@@ -34,4 +37,3 @@ if __name__ == "__main__":
     wandb_logger = WandbLogger()
     trainer = pl.Trainer(callbacks=ModelCheckpoint(dirpath=f"./checkpoint/{config['model']['model_name'].replace('/', '_')}/{now.strftime('%Y-%m-%d %H.%M.%S')}/", filename="{epoch}-{val_micro_f1:.2f}", monitor="val_micro_f1", mode="max"), max_epochs = config["train"]["num_train_epoch"], logger=wandb_logger)
     trainer.fit(model=model, train_dataloaders=dataloader)
-
