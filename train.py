@@ -15,7 +15,6 @@ from modules.utils import config_parser, get_special_token
 if __name__ == "__main__":
 
     wandb.init()
-
     config = config_parser()
 
     pl.seed_everything(config["seed"], workers=True)
