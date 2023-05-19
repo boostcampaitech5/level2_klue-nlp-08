@@ -50,7 +50,7 @@ class ERNet(pl.LightningModule):
         optimizer = get_optimizer(optimizer_type=self.optimizer_type)
         optimizer = optimizer(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         scheduler = get_scheduler(scheduler_type=self.lr_scheduler_type)
-        scheduler = scheduler(optimizer, T_max=100, eta_min=0.001)
+        scheduler = scheduler(optimizer, step_size=1)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):

@@ -88,7 +88,7 @@ def make_index_ids_roberta(tokenized_sentences: Dict) -> BatchEncoding:
 
 def get_special_token(dataset_type : str) -> List:
    if dataset_type == "default":
-      return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
+      return []
    elif dataset_type == "punct":
       return []
    elif dataset_type == "type_entity":
