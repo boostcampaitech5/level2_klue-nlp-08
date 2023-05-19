@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(
-        config["model"]["model_name"],
+        MODEL_NAME,
         additional_special_tokens=get_special_token(config["train"]["dataset_type"]),
     )
 

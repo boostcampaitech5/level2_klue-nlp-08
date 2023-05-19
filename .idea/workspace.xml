@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="cccbe001-a3ed-4866-b5ee-a56030805c90" name="Changes" comment="refactor">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/default.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/default.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="cccbe001-a3ed-4866-b5ee-a56030805c90" name="Changes" comment="refactor_re" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +113,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1684459986489</updated>
-      <workItem from="1684459987967" duration="1303000" />
+      <workItem from="1684459987967" duration="1655000" />
     </task>
     <task id="LOCAL-00001" summary="refactor">
       <created>1684460009449</created>
@@ -125,7 +122,14 @@
       <option name="project" value="LOCAL" />
       <updated>1684460009449</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="refactor_re">
+      <created>1684462426715</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1684462426715</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -133,7 +137,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="refactor" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor" />
+    <MESSAGE value="refactor_re" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor_re" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
