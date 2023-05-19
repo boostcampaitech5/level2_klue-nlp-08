@@ -5,12 +5,12 @@ import pytorch_lightning as pl
 import torch
 import torch.nn.functional as F
 
+from models.utils import get_model
 from modules.losses import get_loss
 from modules.optimizers import get_optimizer
 from modules.schedulers import get_scheduler
-from modules.utils import klue_re_micro_f1, show_confusion_matrix, num_to_label
+from modules.utils import klue_re_micro_f1, num_to_label, show_confusion_matrix
 
-from models.utils import get_model
 
 class ERNet(pl.LightningModule):
     def __init__(self, config, wandb_config=None, resize_token_embedding=None, state=None):
@@ -50,14 +50,14 @@ class ERNet(pl.LightningModule):
         optimizer = get_optimizer(optimizer_type=self.optimizer_type)
         optimizer = optimizer(self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay)
         scheduler = get_scheduler(scheduler_type=self.lr_scheduler_type)
-        scheduler = scheduler(optimizer, step_size=1)
+        scheduler = scheduler(optimizer, step_size=1, gamma=0.3)
         return [optimizer], [scheduler]
 
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
         loss = get_loss(self.loss_type)
-        loss = loss()
+        loss = loss(label_smoothing=0.1)
         loss = loss(y_hat, y)
         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
