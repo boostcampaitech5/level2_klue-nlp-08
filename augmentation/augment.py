@@ -20,18 +20,18 @@ def find_word_indices(sentence, word):
 
 
 label_list = [
-    # "no_relation",
-    # "org:top_members/employees",
+    "no_relation",
+    "org:top_members/employees",
     "org:members",
     "org:product",
-    # "per:title",
+    "per:title",
     "org:alternate_names",
     "per:employee_of",
     "per:parents",
     "org:dissolved",
     "per:schools_attended",
     "per:date_of_death",
-    # "per:date_of_birth",
+    "per:date_of_birth",
     "per:place_of_birth",
     "per:place_of_death",
     "org:founded_by",
@@ -42,7 +42,7 @@ label_list = [
 ]
 
 if __name__ == "__main__":
-    dataframe = pd.read_csv("../dataset/train/train.csv")
+    dataframe = pd.read_csv("../dataset/train/new_train.csv")
 
     new_index_ids = []
     new_sentences = []
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     )
     tokenizer = AutoTokenizer.from_pretrained("klue/roberta-large")
 
-    for i in tqdm(range(3)):
+    for i in tqdm(range(len(dataframe))):
         data = dataframe.iloc[i]
         if data["label"] in label_list:
             index_id = data["id"]
