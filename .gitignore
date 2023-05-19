@@ -2,6 +2,7 @@ dataset/*
 output/*
 code/*
 prediction/*
+augmentation/checkpoint-4000/*
 model/*
 .idea/*
 lightning_logs/*

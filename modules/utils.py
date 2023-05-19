@@ -97,8 +97,18 @@ def get_special_token(dataset_type : str) -> List:
       return ["[ORG]", "[PER]", "[LOC]", "[POH]", "[DAT]", "[NOH]", "[/ORG]", "[/PER]", "[/LOC]", "[/POH]", "[/DAT]", "[/NOH]"]
    elif dataset_type == "ainize":
       return []
+   elif dataset_type == "type_entity_v2":
+      return [
+      "[SUB:DAT]", "[/SUB:DAT]", "[OBJ:DAT]", "[/OBJ:DAT]",
+      "[SUB:LOC]", "[/SUB:LOC]", "[OBJ:LOC]", "[/OBJ:LOC]",
+      "[SUB:NOH]", "[/SUB:NOH]", "[OBJ:NOH]", "[/OBJ:NOH]",
+      "[SUB:ORG]", "[/SUB:ORG]", "[OBJ:ORG]", "[/OBJ:ORG]",
+      "[SUB:PER]", "[/SUB:PER]", "[OBJ:PER]", "[/OBJ:PER]",
+      "[SUB:POH]", "[/SUB:POH]", "[OBJ:POH]", "[/OBJ:POH]", 
+    ]
    else:
       raise ValueError("정의되지 않은 dataset type입니다.")
+   
 
 def make_ner(token_ids):
     di = {32000: 0, 32001: 1, 32002: 2, 32003: 3, 32004: 4, 32005: 5, 32006: 6, 32007: 7, 32008: 8, 32009: 9, 32010: 10,

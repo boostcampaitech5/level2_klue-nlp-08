@@ -8,7 +8,7 @@ def get_optimizer(optimizer_type):
         return optim.Adam
     elif optimizer_type == "SGD":
         return optim.SGD
-    elif optimizer_type == "AdamBelif":
+    elif optimizer_type == "Adabelief":
         return AdaBelief
     else:
       raise ValueError("정의되지 않은 optimizer type입니다.")

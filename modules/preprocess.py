@@ -37,6 +37,16 @@ def preprocessing_dataset(dataset : pd.DataFrame) -> pd.DataFrame:
         object_e_idx.append(obj_e_idx)
         object_entity_type.append(obj_type)
         
-    out_dataset = pd.DataFrame({'id':dataset['id'], 'sentence':dataset['sentence'],'subject_entity':subject_entity,'subject_start_idx':subject_s_idx,'subject_end_idx':subject_e_idx,'subject_entity_type':subject_entity_type,'object_entity':object_entity,'object_start_idx': object_s_idx,'object_end_idx':object_e_idx,'object_entity_type':object_entity_type,'label':dataset['label'],})
+    out_dataset = pd.DataFrame({'id':dataset['id'], 
+                                'sentence':dataset['sentence'],
+                                'subject_entity':subject_entity,
+                                'subject_start_idx':subject_s_idx,
+                                'subject_end_idx':subject_e_idx,
+                                'subject_entity_type':subject_entity_type,
+                                'object_entity':object_entity,
+                                'object_start_idx': object_s_idx,
+                                'object_end_idx':object_e_idx,
+                                'object_entity_type':object_entity_type,
+                                'label':dataset['label'],})
 
     return out_dataset
