@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(
-        "klue/roberta-large",
+        config["model"]["model_name"],
         additional_special_tokens=get_special_token(config["train"]["dataset_type"]),
     )
 
@@ -29,7 +29,6 @@ if __name__ == "__main__":
     model.model.resize_token_embeddings(len(tokenizer))
 
     now = datetime.now(pytz.timezone("Asia/Seoul"))
-    wandb_logger = WandbLogger(project='taemin-wandb-lightning', job_type='train')
     trainer = pl.Trainer(
         callbacks=ModelCheckpoint(
             dirpath=f"./checkpoint/{config['model']['model_name'].replace('/', '_')}/{now.strftime('%Y-%m-%d %H.%M.%S')}/",
@@ -38,6 +37,5 @@ if __name__ == "__main__":
             mode="max",
         ),
         max_epochs=config["train"]["num_train_epoch"],
-        logger=wandb_logger
     )
     trainer.fit(model=model, train_dataloaders=dataloader)

@@ -1,33 +1,33 @@
-seed : 43
+seed : 42
 
-data : 
-  train_batch_size : 12
-  val_batch_size : 12
-  test_batch_size : 12
+data :
+  train_batch_size : 16
+  val_batch_size : 16
+  test_batch_size : 16
   tokenizer_max_len : 256
 
 train :
-  num_train_epoch : 8
-  weight_decay : 0.0001
-  learning_rate : 1e-5
+  num_train_epoch : 3
+  weight_decay : 0.01
+  learning_rate : 5e-5
 
   # modules/schedulers.py
   lr_scheduler : stepLR  #[stepLR]
 
   # modules/optimizers.py
-  optimizer : AdamBelif  #[AdamW, Adam, SGD]
+  optimizer : AdamW  #[AdamW, Adam, SGD]
 
   # modules/losses.py
   loss : cross_entropy  #[cross_entropy, focal_loss]
 
   # modules/datasets.py
-  dataset_type : type_entity  #[default, punct, type_entity, ainize]
+  dataset_type : ainize  #[default, punct, type_entity, ainize]
 
 model :
   # models/utils.py
-  model_name : TAEMIN_TOKEN_ATTENTION_RoBERTa
+  model_name : ainize/klue-bert-base-re
   #[
-  # TAEMIN_TOKEN_ATTENTION_RoBERTa, 
+  # TAEMIN_TOKEN_ATTENTION_RoBERTa,
   # TAEMIN_TOKEN_ATTENTION_BERT,
   # TAEMIN_RoBERTa_LSTM,
   # TAEMIN_R_RoBERTa,
@@ -40,33 +40,32 @@ wandb :
   project_name : XXXX
   name : klue-bert-sweep
   method: grid
-  parameters : 
-    epochs : 
-      values : 
+  parameters :
+    epochs :
+      values :
       - 3
       - 4
       - 5
       - 10
     batch_size:
-      values: 
+      values:
       - 8
       - 16
       - 32
     learning_rate:
-      values: 
-      - 0.00002 
-      - 0.00003 
+      values:
+      - 0.00002
+      - 0.00003
       - 0.00005
     weight_decay:
-      values: 
+      values:
       - 0.0
       - 0.01
       - 0.1
 
 path:
-  model : ./checkpoint/TAEMIN_TOKEN_ATTENTION_RoBERTa/2023-05-18 17.55.45/epoch=2-val_micro_f1=72.73.ckpt
-  train : ./dataset/train/train.csv
-  dev : ./dataset/train/val.csv
-  test : ./dataset/test/test.csv
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-15 11.12.37/epoch=2-val_micro_f1=90.60.ckpt
+  train : ./dataset/train/new_train.csv
+  dev : ./dataset/train/new_dev.csv
+  test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue-bert-base
-  
