@@ -2,6 +2,7 @@ import argparse
 import os
 import pickle
 import re
+import numpy as np
 from datetime import datetime
 from typing import Dict, List
 
@@ -9,6 +10,7 @@ import omegaconf
 import pytz
 import sklearn.metrics
 import torch
+from sklearn.preprocessing import LabelEncoder
 from transformers import BatchEncoding
 
 
@@ -44,7 +46,7 @@ def show_confusion_matrix(preds, labels, epoch, save_path):
    matrix = sklearn.metrics.confusion_matrix(y_pred=preds, y_true=labels)
    os.makedirs("confusion_matrix", exist_ok=True)
    os.makedirs(save_path, exist_ok=True)
-   with open(f"{save_path}/epoch:{epoch}&{now.strftime('%Y-%m-%d %H.%M.%S')}.txt", "w") as f:
+   with open(f"{save_path}/epoch:{epoch}&{now.strftime('%Y_%m_%d_%H_%M_%S')}.txt", "w") as f:
       content = str(matrix)
       content = re.sub(r'\s+', ',', content)
       content = re.sub(r'\d+', lambda m: f"{m.group(0):>4}", content)
@@ -108,3 +110,48 @@ def get_special_token(dataset_type : str) -> List:
       raise ValueError("정의되지 않은 dataset type입니다.")
    
 
+def make_ner(token_ids):
+    di = {32000: 0, 32001: 1, 32002: 2, 32003: 3, 32004: 4, 32005: 5, 32006: 6, 32007: 7, 32008: 8, 32009: 9, 32010: 10,
+          32011: 11}
+    ner_tags = ['B-ORG', 'B-PER', 'B-LOC', 'B-POH', 'B-DAT', 'B-NOH', 'I-ORG', 'I-PER', 'I-LOC', 'I-POH', 'I-DAT',
+                'I-NOH', 'O']
+    ner_dict = {'B-ORG': 1, 'B-PER': 2, 'B-LOC': 3, 'B-POH': 4, }
+    ner_list = []
+    tokenized_sentences = token_ids
+    for i in tokenized_sentences.data['input_ids']:
+        ner_tensor = [0] * len(i)
+        state = 0
+        for j in range(len(ner_tensor)):
+            if i[j] >= 32006:
+                state = 0
+            if i[j] >= 32000 and i[j] <= 32005:
+                temp = i[j].numpy()
+                temp = temp.tolist()
+                temp = int(temp)
+                state = 1
+                ner_tensor[j] = 'O'
+                I_state = 1
+                pass
+
+            elif state == 1:
+                if I_state == 1:
+                    ner_tensor[j] = ner_tags[di[temp]]
+                    I_state = 0
+                else:
+                    ner_tensor[j] = ner_tags[di[temp + 6]]
+            else:
+                ner_tensor[j] = 'O'
+
+        ner_list.append(ner_tensor)
+
+    label_encoder = LabelEncoder()
+    label_encoder.fit(ner_tags)
+    y_true_int = [label_encoder.transform(true) for true in ner_list]
+    ner_tensor_list = []
+    for i in y_true_int:
+        ner_tensor = list(torch.tensor(i))
+        ner_tensor_list.append(ner_tensor)
+
+    return torch.tensor(ner_tensor_list)
+    #print(tokenized_sentences.data['input_ids'][0])
+    #print(ner_list[0])

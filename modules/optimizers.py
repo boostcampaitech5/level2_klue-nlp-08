@@ -1,7 +1,6 @@
 import torch.optim as optim
 from adabelief_pytorch import AdaBelief
 
-
 def get_optimizer(optimizer_type):
     if optimizer_type == "AdamW":
         return optim.AdamW

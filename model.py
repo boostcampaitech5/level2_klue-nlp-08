@@ -59,7 +59,16 @@ class ERNet(pl.LightningModule):
     def training_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
+        y_hat_ner = self(x).ner_logits
         loss = get_loss(self.loss_type)
+#         loss_ner = get_loss(self.loss_type)
+#         loss = loss(label_smoothing=0.2)
+#         loss_ner = loss_ner(label_smoothing=0.2)
+#         loss = loss.forward(y_hat, y)
+#         loss_ner = loss_ner(y_hat_ner,batch["ner_list"].view(-1).to(torch.int64))
+#         loss = loss + loss_ner
+#         micro_f1 = klue_re_micro_f1(y_hat.argmax(dim=1).detach().cpu(), y.detach().cpu())
+#         self.log_dict({'train_micro_f1': micro_f1, "train_loss" : loss}, on_epoch=True, prog_bar=True, logger=True)
         loss = loss(label_smoothing=0.1)
         loss = loss(y_hat, y)
         micro_f1 = klue_re_micro_f1(
@@ -84,8 +93,11 @@ class ERNet(pl.LightningModule):
     def validation_step(self, batch, _):
         y, x = batch.pop("labels"), batch
         y_hat = self(x).logits
+        y_hat_ner = self(x).ner_logits
         loss = F.cross_entropy(y_hat, y)
-
+        #logits_ner.view(-1, 13), ner_tensor_list.view(-1).to(torch.int64)
+        loss_ner = F.cross_entropy(y_hat_ner,x["ner_list"].view(-1).to(torch.int64))
+        loss = loss + loss_ner
         pred = y_hat.argmax(dim=1)
         correct = pred.eq(y.view_as(pred)).sum().item()
         micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu()).item()

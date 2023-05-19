@@ -11,7 +11,7 @@ def get_loss(loss_type):
         raise ValueError("정의되지 않은 loss type입니다.")
 
 class FocalLoss(nn.Module):
-    def __init__(self, alpha=0.25, gamma=2, logits=False, reduce=True):
+    def __init__(self, alpha=0.25, gamma=5, logits=False, reduce=False):
         super(FocalLoss, self).__init__()
         self.alpha = alpha
         self.gamma = gamma
