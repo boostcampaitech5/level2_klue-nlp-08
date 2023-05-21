@@ -1,17 +1,17 @@
 data_path_list:
-  - /Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/prediction/tapt_sangwon.csv
-  - /Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/prediction/hj_submission.csv
-  - /Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/prediction/submission(2).csv
+  - ./prediction/ensemble_material_1.csv
+  - ./prediction/ensemble_material_2.csv
+  - ./prediction/ensemble_material_3.csv
 
 model_f1_score: 
-  - 73.62
-  - 73.06
-  - 72.7
+  - 100.00 # ensemble_material_1 f1-score 
+  - 100.00 # ensemble_material_2 f1-score
+  - 100.00 # ensemble_material_3 f1-score
 
 save_path:
-  ./prediction/ensemble_BestofBest_possibility.csv
+  ./prediction/ensemble_output.csv
 
 mode : 
-  #hard_voting 
-  possibility 
+  hard_voting 
+  #soft_voting
   #weighted_score

@@ -1,8 +1,7 @@
-import random
-
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from augment import find_word_indices
 from tqdm.auto import tqdm
 from transformers import AutoModelForMaskedLM, AutoTokenizer
 
@@ -42,7 +41,7 @@ label_list = [
 ]
 
 if __name__ == "__main__":
-    dataframe = pd.read_csv("../dataset/train/new_train.csv")
+    dataframe = pd.read_csv(config["data_path"])
 
     new_index_ids = []
     new_sentences = []
@@ -51,10 +50,8 @@ if __name__ == "__main__":
     new_labels = []
     new_sources = []
 
-    model = AutoModelForMaskedLM.from_pretrained(
-        "/Users/kimjuwon/Github/NaverBoostCamp_KLUE/colab_klue/level2_klue-nlp-08/augmentation/checkpoint-4000"
-    )
-    tokenizer = AutoTokenizer.from_pretrained("klue/roberta-large")
+    model = AutoModelForMaskedLM.from_pretrained(config["pre_trained_model"])
+    tokenizer = AutoTokenizer.from_pretrained(config["model_name"])
 
     for i in tqdm(range(len(dataframe))):
         data = dataframe.iloc[i]
