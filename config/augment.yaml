@@ -28,5 +28,5 @@ DataCollatorForLanguageModeling:
     
 data_path : 
   test_path : ./dataset/test/test_data.csv 
-  train_path : ./dataset/train/new_train.csv
+  train_path : ./dataset/train/train.csv
   pretrain_path : ./augmentation/augmentation_model
