@@ -1,22 +1,14 @@
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from augment import find_word_indices
+from modules.utils import config_parser
 from tqdm.auto import tqdm
 from transformers import AutoModelForMaskedLM, AutoTokenizer
-
-
-def find_word_indices(sentence, word):
-    indices = []
-    start_index = 0
-    while True:
-        index = sentence.find(word, start_index)
-        if index == -1:
-            break
-        indices.append((index, index + len(word) - 1))
-        start_index = index + len(word) - 1
-    return indices
-
+from utils import find_word_indices
 
 label_list = [
     "no_relation",
@@ -41,7 +33,9 @@ label_list = [
 ]
 
 if __name__ == "__main__":
-    dataframe = pd.read_csv(config["data_path"])
+    config = config_parser()
+
+    dataframe = pd.read_csv(config["data_path"]["train_path"])
 
     new_index_ids = []
     new_sentences = []
@@ -50,7 +44,7 @@ if __name__ == "__main__":
     new_labels = []
     new_sources = []
 
-    model = AutoModelForMaskedLM.from_pretrained(config["pre_trained_model"])
+    model = AutoModelForMaskedLM.from_pretrained(config["model_path"])
     tokenizer = AutoTokenizer.from_pretrained(config["model_name"])
 
     for i in tqdm(range(len(dataframe))):
@@ -73,11 +67,11 @@ if __name__ == "__main__":
 
             tokenized_text = tokenizer(
                 text_data,
-                return_tensors="pt",
-                padding=True,
-                truncation=True,
-                max_length=256,
-                add_special_tokens=True,
+                return_tensors=config["tokenizers"]["return_tensors"],
+                padding=config["tokenizers"]["padding"],
+                truncation=config["tokenizers"]["truncation"],
+                max_length=config["tokenizers"]["maxlength"],
+                add_special_tokens=config["tokenizers"]["add_special_tokens"],
             )
 
             mask_idx_list = []

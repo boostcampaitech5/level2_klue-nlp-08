@@ -1,5 +1,7 @@
 import sys
 
+import numpy as np
+
 
 def list_argmax(array):
     min_array = -sys.maxsize
