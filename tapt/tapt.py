@@ -34,9 +34,9 @@ def main():
     training_args = TrainingArguments(
         output_dir=f"./{MODEL_NAME}_TAPT",
         overwrite_output_dir=True,
-        num_train_epochs=1,
-        per_device_train_batch_size=16,
-        learning_rate=5e-6,
+        num_train_epochs=config["train"]["num_train_epoch"],
+        per_device_train_batch_size=config["train"]["train_batch_size"],
+        learning_rate=config["train"]["learning_rate"],
         save_steps=1000,
         save_total_limit=2,
         logging_steps=100,
