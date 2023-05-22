@@ -1,36 +1,53 @@
-from transformers import DataCollatorForLanguageModeling
-from transformers import Trainer, TrainingArguments
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from augment_dataloader import AugmentDataset
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from modules.utils import config_parser
+from transformers import (
+    AutoModelForMaskedLM,
+    AutoTokenizer,
+    DataCollatorForLanguageModeling,
+    Trainer,
+    TrainingArguments,
+)
 
-if __name__ == '__main__':
-    model = AutoModelForMaskedLM.from_pretrained("klue/roberta-large")
-    tokenizer = AutoTokenizer.from_pretrained("klue/roberta-large")
-    dataset = AugmentDataset(["../dataset/test/test_data.csv", "../dataset/train/train.csv"], tokenizer=tokenizer)
+if __name__ == "__main__":
+    config = config_parser()
 
-    data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=True, mlm_probability=0.15)
+    model = AutoModelForMaskedLM.from_pretrained(config["model_name"])
+    tokenizer = AutoTokenizer.from_pretrained(config["model_name"])
+    dataset = AugmentDataset(
+        config=config,
+        tokenizer=tokenizer,
+    )
+
+    data_collator = DataCollatorForLanguageModeling(
+        tokenizer=tokenizer,
+        mlm=config["DataCollatorForLanguageModeling"]["mlm"],
+        mlm_probability=config["DataCollatorForLanguageModeling"]["mlm_probability"],
+    )
 
     training_args = TrainingArguments(
-        output_dir='./pretrain2',
-        overwrite_output_dir=True,
-        learning_rate=1e-5,
-        num_train_epochs=2,
-        per_gpu_train_batch_size=16,
-        #evaluation_strategy='epoch',
-        #save_strategy ='epoch',
-        save_steps=1000,
-        save_total_limit=2,
-        logging_steps=100,
-        weight_decay=0.01,
-        #load_best_model_at_end=True
+        output_dir=config["training_arguments"]["output_dir"],
+        overwrite_output_dir=config["training_arguments"]["overwrite_output_dir"],
+        learning_rate=config["training_arguments"]["learning_rate"],
+        num_train_epochs=config["training_arguments"]["num_train_epochs"],
+        per_gpu_train_batch_size=config["training_arguments"][
+            "per_gpu_train_batch_size"
+        ],
+        save_steps=config["training_arguments"]["save_steps"],
+        save_total_limit=config["training_arguments"]["save_total_limit"],
+        logging_steps=config["training_arguments"]["logging_steps"],
+        weight_decay=config["training_arguments"]["weight_decay"],
     )
 
     trainer = Trainer(
         model=model,
         args=training_args,
         data_collator=data_collator,
-        train_dataset=dataset   
+        train_dataset=dataset,
     )
 
     trainer.train()
-    trainer.save_model("./augmentation_model")
+    trainer.save_model(config["data_path"]["save_path"])
