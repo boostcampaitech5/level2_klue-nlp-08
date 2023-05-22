@@ -72,12 +72,11 @@ class ERNet(pl.LightningModule):
 
     def validation_step(self, batch, _):
         y, x = batch.pop("labels"), batch
-        y_hat = self(x).logits
-        y_hat_ner = self(x).ner_logits
-        loss = F.cross_entropy(y_hat, y)
-        #logits_ner.view(-1, 13), ner_tensor_list.view(-1).to(torch.int64)
-        loss_ner = F.cross_entropy(y_hat_ner,x["ner_list"].view(-1).to(torch.int64))
-        loss = loss + loss_ner
+        if self(x).ner_logiths != None:
+            loss,y_hat = self.mulit_loss(batch,y,x)
+        else:
+            y_hat = self(x).logits
+            loss = F.cross_entropy(y_hat, y)
         pred = y_hat.argmax(dim=1)
         correct = pred.eq(y.view_as(pred)).sum().item()
         micro_f1 = klue_re_micro_f1(pred.detach().cpu(), y.detach().cpu()).item()
