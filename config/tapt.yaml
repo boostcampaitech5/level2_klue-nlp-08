@@ -1,0 +1,5 @@
+model_name: klue/roberta-large
+
+path:
+  train: ./dataset/train/train.csv
+  test: ./dataset/test/test_data.csv
