@@ -4,7 +4,7 @@ data :
   train_batch_size : 16
   val_batch_size : 16
   test_batch_size : 16
-  tokenizer_max_len : 128
+  tokenizer_max_len : 256
 
 train :
   num_train_epoch : 3
