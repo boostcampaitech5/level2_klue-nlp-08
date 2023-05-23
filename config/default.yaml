@@ -1,6 +1,6 @@
 seed : 42
 
-data : 
+data :
   train_batch_size : 16
   val_batch_size : 16
   test_batch_size : 16
@@ -21,14 +21,13 @@ train :
   loss : cross_entropy  #[cross_entropy, focal_loss]
 
   # modules/datasets.py
-  dataset_type : punct #[default, punct, type_entity, ainize] 
+  dataset_type : ainize  #[default, punct, type_entity, ainize]
 
 model :
   # models/utils.py
-  model_name : klue/roberta-large
-  #[klue/bert-base ,
-  #ainize/klue-bert-base-re,
-  # TAEMIN_TOKEN_ATTENTION_RoBERTa, 
+  model_name : ainize/klue-bert-base-re
+  #[
+  # TAEMIN_TOKEN_ATTENTION_RoBERTa,
   # TAEMIN_TOKEN_ATTENTION_BERT,
   # TAEMIN_RoBERTa_LSTM,
   # TAEMIN_R_RoBERTa,
@@ -41,25 +40,25 @@ wandb :
   project_name : XXXX
   name : klue-bert-sweep
   method: grid
-  parameters : 
-    epochs : 
-      values : 
+  parameters :
+    epochs :
+      values :
       - 3
       - 4
       - 5
       - 10
     batch_size:
-      values: 
+      values:
       - 8
       - 16
       - 32
     learning_rate:
-      values: 
-      - 0.00002 
-      - 0.00003 
+      values:
+      - 0.00002
+      - 0.00003
       - 0.00005
     weight_decay:
-      values: 
+      values:
       - 0.0
       - 0.01
       - 0.1
@@ -73,4 +72,3 @@ path:
   dev : ./dataset/train/forbidden_val.csv
   test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue-bert-base
-  

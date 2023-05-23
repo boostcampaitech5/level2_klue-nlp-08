@@ -1,17 +1,17 @@
 data_path_list:
-  - ./prediction/BERT-Optimizer_Adabelief.csv
-  - ./prediction/Punc_roberta.csv
-  - ./prediction/Taemin_Attention_Roberta.csv
+  - ./prediction/ensemble_material_1.csv
+  - ./prediction/ensemble_material_2.csv
+  - ./prediction/ensemble_material_3.csv
 
 model_f1_score: 
-  - 71.7640
-  - 70.8052
-  - 66.9393
+  - 100.00 # ensemble_material_1 f1-score 
+  - 100.00 # ensemble_material_2 f1-score
+  - 100.00 # ensemble_material_3 f1-score
 
 save_path:
-  ./prediction/ensemble.csv
+  ./prediction/ensemble_output.csv
 
 mode : 
   hard_voting 
-  #possibility 
+  #soft_voting
   #weighted_score
