@@ -56,94 +56,126 @@
 
 ## 📁 Project Structure
 
-### 🗂️ 디렉토리 구조 설명 
-- 학습 데이터 경로: `./data`
-- 공개 Pretrained 모델 기반으로 추가 Fine Tuning 학습을 한 파라미터 경로
-    - `./save_folder/kykim/checkpoint-7960`
-    - `./save_folder/snunlp/checkpoint-31824`
-    - `./save_folder/xlm_roberta_large/checkpoint-7960`
-- 학습 메인 코드: `./train.py`
-- 학습 데이터셋 경로: `./data/aug_train.csv`
-- 테스트 메인 코드: `./infer.py`
-- 테스트 데이터셋 경로: `./data/test.csv`
+### 📄 디렉토리 및 코드 구조 설명
+> 학습 진행하기 전 증강 데이터 활용시 Augmentation을 학습 전에 진행<br>TAPT 적용시 TAPT 코드를 사전에 먼저 학습시켜 모델에 활용
 
-### 📄 코드 구조 설명
+- Augmentation : 데이터 증강 디렉토리
+  - `augment_train.py` : 데이터 증강 모델 학습
+  - `augment_dataloader.py` : 데이터 증강 모델 학습시 사용하는 dataloader
+  - `augment.py` : 데이터 증강 코드
+- dataset : 학습/테스트 데이터 디렉토리
+  - `train/train.csv` : 학습 데이터 
+  - `test/test_data.csv` : 테스트 데이터
+- config : 모델 학습, 추론, 증강에 관련된 설정을 담고 있는 파일
+  - `augment.yaml` : 증강 관련 설정 파일. 
+  - `default.yaml` : 모델 학습, 추론 관련 설정 파일. 다양한 모델, 하이퍼 파라미터 세팅
+  - `ensemble.yaml` : 앙상블 설정 파일 (Hard Voting, Soft Voting, F1-score Weighted Voting)
+  - `tapt.yaml` : TAPT 관련 설정 파일
+- model_ensemble : 앙상블 실행 파일
+  - `ensemble.py` : 앙상블 실행 코드
+  - `ensemble_model.py` : 앙상블 기법 정의(Hard Voting, Soft Voting, F1-score Weighted Voting)
+  - `utils.py` : 앙상블에 필요한 argmax, softmax 함수 정의
+- models : 
+  - `RBERT.py`: R-BERT 모델 정의 코드
+  - `TAEMIN_CUSTOM_RBERT.py`: R-BERT 단순화 모델 정의 코드
+  - `TAEMIN_R_RoBERTa.py`: R-Roberta 모델 파일
+  - `TAEMIN_RoBERTa_LSTM.py`: Roberta-LSTM 모델 정의 코드
+  - `TAEMIN_TOKEN_ATTENTION_BERT.py`: BERT + CLS Token Attention 모델 정의 코드
+  - `TAEMIN_TOKEN_ATTENTION_RoBERTa.py`: Roberta + CLS Token Attention 모델 정의 코드
+  -  `model_base.py`: base 모델 정의 코드(FC Layer, RobertaClassificationHead, RobertaPooler)
+  -  `utils.py`:
+- modules : 모델에 쓰이는 dataset, loss 등 세부적인 모듈 정의 디렉토리
+  - `datasets.py `: 모델 별 dataset 생성 코드
+  - `losses.py` : Focal loss 코드
+  - `optimizers.py` : AdamW, Adam, SGD, Adabelief 등 Optimizer 정의 코드
+  - `preprocess.py` : 데이터 파싱 및 전처리 코드
+  - `schedulers.py` : StepLR, CosinLR 정의 코드
+  - `tokenize.py` : 토크나이징 및 Entity Representation 코드
+  - `utils.py` : micro_f1, config_parser, confusion_matrix 코드
+- pickle : 숫자 label - 스트링 label 변환 피클 파일
+  - `dict_label_to_num.pkl` : 숫자 label을 스트링 label로 변환하는 피클 파일
+  - `dict_num_to_label.pkl `: 스트링 label을 숫자 label로 변환하는 피클 파일
+- prediction : 모델 추론 저장 디렉토리
+- tapt : 
+  - `dataset.py` : TAPT 데이터 로더 코드
+  - `tapt.py` : TAPT 학습 코드
+- .gitignore : gitignore
+- `dataloader.py` : 모델 data loader 코드
+- `inference.py` : 모델 추론 코드
+- `model.py` : pytorch-lightning을 이용한 기본 모델 정의 코드
+- `requirements.txt` : 환경 설정 관련 text파일
+- `train.py` : 모델 학습 코드
+- `wandb_tuning.py` : 여러개의 하이퍼 파라미터를 이용하여 wandb로 튜닝
 
-> 학습 진행하기 전 데이터 증강을 먼저 실행하여 학습 시간 단축
-
-- **데이터 증강** Get Augmentation Data : `augmentation.py`
-- **Train** : `train.py`
-- **Predict** : `infer.py`
-- **Ensemble** : `python esnb.py`
-- **최종 제출 파일** : `./esnb/esnb.csv`
-
-```
-📦level1_semantictextsimilarity-nlp-11
+```bash
+📦level2_klue-nlp-08
+ ┣ augmentation
+ ┃ ┣ augment.py
+ ┃ ┣ augment_dataloader.py
+ ┃ ┣ augment_train.py
+ ┃ ┗ utils.py
+ ┣ config
+ ┃ ┣ augment.yaml
+ ┃ ┣ default.yaml
+ ┃ ┣ ensemble.yaml
+ ┃ ┗ tapt.yaml
+ ┣ dataset
+ ┃ ┣ test
+ ┃ ┃ ┗ test_data.csv
+ ┃ ┣ train
+ ┃ ┃ ┗ train.csv
+ ┣ model_ensemble
+ ┃ ┣ ensemble.py
+ ┃ ┣ ensemble_model.py
+ ┃ ┗ utils.py
+ ┣ models
+ ┃ ┣ RBERT.py
+ ┃ ┣ TAEMIN_CUSTOM_RBERT.py
+ ┃ ┣ TAEMIN_R_RoBERTa.py
+ ┃ ┣ TAEMIN_RoBERTa_LSTM.py
+ ┃ ┣ TAEMIN_TOKEN_ATTENTION_BERT.py
+ ┃ ┣ TAEMIN_TOKEN_ATTENTION_RoBERTa.py
+ ┃ ┣ model_base.py
+ ┃ ┗ utils.py
+ ┣ modules
+ ┃ ┣ datasets.py
+ ┃ ┣ losses.py
+ ┃ ┣ optimizers.py
+ ┃ ┣ preprocess.py
+ ┃ ┣ schedulers.py
+ ┃ ┣ tokenize.py
+ ┃ ┗ utils.py
+ ┣ pickle
+ ┃ ┣ dict_label_to_num.pkl
+ ┃ ┗ dict_num_to_label.pkl
+ ┣ prediction
+ ┣ tapt
+ ┃ ┣ dataset.py
+ ┃ ┗ tapt.py
+ ┣ wandb
  ┣ .gitignore
- ┣ config_yaml
- ┃ ┣ kykim.yaml
- ┃ ┣ snunlp.yaml
- ┃ ┣ test.yaml
- ┃ ┗ xlm_roberta_large.yaml
- ┣ data
- ┃ ┣ train.csv
- ┃ ┣ aug_train.csv
- ┃ ┣ dev.csv
- ┃ ┗ test.csv
- ┣ wordnet
- ┃ ┗ wordnet.pickle
- ┣ save_folde
- ┃ ┣ kykim
- ┃ ┃ ┗ checkpoint-7960
- ┃ ┣ snunlp
- ┃ ┃ ┗ checkpoint-31824
- ┃ ┗ xlm_roberta_large
- ┃   ┗ checkpoint-7960
- ┣ esnb
- ┃ ┗ esnb.csv
- ┣ output
- ┃ ┣ xlm_roberta_large.csv
- ┃ ┣ kykim.csv
- ┃ ┗ snunlp.csv
- ┣ .gitignore
- ┣ Readme.md
- ┣ augmentation.py
+ ┣ README.md
  ┣ dataloader.py
- ┣ esnb.py
- ┣ infer.py
+ ┣ inference.py
+ ┣ model.py
+ ┣ requirements.txt
  ┣ train.py
- ┗ utils.py
- ```
-<br>
+ ┗ wandb_tuning.py
+```
 
-## 📐 Project Ground Rule
->팀 협업을 위해 개선점 파악을 위해 지난 NLP 기초 프로젝트 관련한 회고를 진행하였다. 회고를 바탕으로 프로젝트의 팀 목표인 “함께 성장”과 “실험 기록하기”를 설정했다. 그리고 목표를 이루기 위한 Ground Rule을 설정하여 프로젝트가 원활하게 돌아갈 수 있도록 팀 규칙을 정했다. 또한, 날짜 단위로 간략한 목표를 설정하여 협업을 원활하게 진행할 수 있도록 계획을 하여 프로젝트를 진행했다. 
-
-- **`a. 실험 & 노션 관련 Ground Rule`**: 본인 실험을 시작할 때, Project 대시보드에 본인의 작업을 할당한 뒤 시작한다. 작업은 ‘하나의 아이디어’ 단위로 생성하고 Task, 진행상태를 표시한다. 작업이 마무리되면 실험 결과가 성능의 향상에 상관없이 ‘실험 대시보드’에 기록하고 상태를 완료 표시로 바꿔 마무리한다. 작업 단위로 관리하되 그 실험을 어떤 가설에서 진행하게 되었는지, 성공했다면 성공했다고 생각하는 이유, 실패했다면 실패한 원인에 대해 간략하게 정리한다.
-- **`b. Commit 관련 Ground Rule`**: 
-   1. **전체 main branch Pull Request 관련 Rule :** main branch에 대한 pull request는 Baseline Code를 업데이트할 때마다 진행한다. commit message에는 점수, 데이터, 버전 내용이 들어가도록 작성하고 push 한다
-  2. **개인 Branch Commit 관련 Rule :** git commit & push는 코드의 유의미한 변화가 있을 때마다 진행한다. Commit message에는 코드 수정 내용(추가/변경/삭제)이 들어가도록 작성하고 push 한다.
-- **`c. Submission 관련 Ground Rule` :** 하루 submission 횟수는 1인 2회씩 할당한다. 추가로 submission을 하고 싶으면 SLACK 단체 톡방에서 다른 캠퍼에게 물어봐 여유 횟수를 파악한 뒤 추가 submission을 진행한다. Submission을 할 때 다른 팀원이 어떤 실험의 submission인지 파악할 수 있도록 사용한 모델, 데이터, 기법, 하이퍼파라미터 등이 들어갈 수 있도록 Description을 기재한다.
-- **`d. 회의 관련 Ground Rule` :** 전원이 진행하지 않는 Small 회의는 다양한 방식(Zep, Google Meet, Zoom)으로 진행하고 회의 내용을 기록한다.
-
-<br>
-
-## 🗓️ Project Procedure
-
-*아래는 저희 프로젝트 진행과정을 담은 Gantt차트 입니다. 
-
-![road_map](https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/96534680/023681aa-b2c5-43f0-86f6-9fcc2599a5ef)
 
 <br>
 
 ## ⚙️ Architecture
+
 |분류|내용|
 |:--:|--|
-|모델|[`kykim/electra-kor-base`](https://huggingface.co/kykim/electra-kor-base), [`snunlp/KR-ELECTRA-discriminator`](https://huggingface.co/snunlp/KR-ELECTRA-discriminator), [`xlm-roberta-large`](https://huggingface.co/xlm-roberta-large)+ `HuggingFace Transformer Trainer`|
-|데이터|• `v1` : swap sentence, copied sentence 기법을 적용하여 레이블 불균형을 해소한 데이터셋<br>• `v2` : KorEDA의 Wordnet 활용하여 Synonym Replacement 기법으로 증강한 데이터셋|
-|검증 전략|• Evaluation 단계의 피어슨 상관 계수를 일차적으로 비교<br>• 기존 SOTA 모델과 성능이 비슷한 모델을 제출하여 public 점수를 확인하여 이차 검증|
-|앙상블 방법|• 상기 3개의 모델 결과를 모아서 평균을 내는 방법으로 앙상블 수행|
-|모델 평가 및 개선 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|토크나이징 결과 분석을 통해 max_length를 수정하여 모델 학습 시간을 절반 가량 단축할 수 있었다. 다양한 증강 및 전처리 기법을 통해 label imbalance 문제를 해결하여 overfitting을 방지하고 성능을 크게 향상시켰다. 또한, HuggingFace Trainer와 wandb를 사용하여 여러 하이퍼파라미터를 한층 더 편리하고 효율적으로 관리할 수 있었다.|
+|모델|[`klue/bert-base`](https://huggingface.co/klue/bert-base), [`klue/roberta-large`](https://huggingface.co/klue/roberta-large), [`ainize/klue-bert-base-re`](https://huggingface.co/ainize/klue-bert-base-re) `HuggingFace Transformer Model`+`Pytorch Lightning`활용 + Attention Layer or FC Layer|
+|전처리|• `Entity Representation` : Entity marker / Typed entity marker / SUB,OBJ marker / punct(한글) 등 다양한 entity representation을 적용하여 최적의 성능을 내는 entity representation 적용 |• Evaluation 단계의 피어슨 상관 계수를 일차적으로 비교<br>• 기존 SOTA 모델과 성능이 비슷한 모델을 제출하여 public 점수를 확인하여 이차 검증|
+|데이터|• `raw data` : 기본 train 데이터 32470개 <br>• `증강데이터` : MLM kue/roberta-large 모델을 활용하여 증강데이터를 만들고 uniform 분포를 만들어 총 53873개|
+|검증 전략|• 만들었던 모델의 Validation 데이터를 inference에 Micro F1-Score와 AUPRC Score 비교 <br>• 최종적으로 리더보드에 제출하여 모델 성능 검증|
+|앙상블 방법|• Entity Represenatation과 모델기법, 증강데이터 중 가장 성능이 좋은 모델 3개를 선정하여 soft voting 앙상블을 진행
+|모델 평가 및 개선 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|. MLM 모델을 사용하여 데이터 증강을 실시하여 label imbalance 문제를 해결한다. 또한, Entity Representation을 활용하여 데이터를 전처리하고 HuggingFace 모델에 Attention layer와 FC Layer등을 추가하는 등 다양한 기법을 활용하여 모델 성능을 개선한다.|
 
 <br>
 
@@ -152,31 +184,25 @@
 ### ⚠️  How To install Requirements
 ```bash
 #필요 라이브러리 설치
-# version 0.5
-pip install git+https://github.com/haven-jeon/PyKoSpacing.git
-# version 1.1
-pip install git+https://github.com/jungin500/py-hanspell
 pip install -r requirements.txt
-sudo apt install default-jdk
 ```
 
 ### ⌨️ How To Train 
+
 ```bash
-# 데이터 증강
-python3 augmentation.py
+# 데이터 증강 [optional]
+python3 augmentation/augment.py --config=config/augment.yaml
+python3 augmentation/augment_train.py --config=config/augment.yaml
+# TAPT 학습 모델 생성 [optional]
+python3 tapt/tapt.py --config=config/tapt.yaml
 # train.py 코드 실행 : 모델 학습 진행
-# model_name을 kykim/electra-kor-base, snunlp/KR-ELECTRA-discriminator, xlm-roberta-large로 변경하며 train으로 학습
-python3 train.py # model_name = model_list[0]
-python3 train.py # model_name = model_list[1]
-python3 train.py # model_name = model_list[2]
+python3 train.py --config=config/default.yaml
 ```
-
 ### ⌨️ How To Infer output.csv
-```bash
-# infer.py 코드 실행 : 훈련된 모델 load + sample_submission을 이용한 train 진행
-python3 infer.py # model_name = model_list[0]
-python3 infer.py # model_name = model_list[1]
-python3 infer.py # model_name = model_list[2]
-python3 esnb.py
-```
 
+```bash
+# 모델 예측 진행
+python3 inference.py --config=config/default.yaml
+# 앙상블 진행 [config를 통해서 option 선택]
+python3 model_ensemble/ensemble.py --config=config/ensemble.yaml
+```
