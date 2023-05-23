@@ -5,6 +5,20 @@
 
 <br>
 
+
+
+## 🎖️Project Leader Board 
+![public_7th](https://img.shields.io/static/v1?label=Public%20LB&message=7th&color=black&logo=naver&logoColor=white") ![private_8th](https://img.shields.io/static/v1?label=Private%20LB&message=8th&color=black&logo=naver&logoColor=white">)
+- Public Leader Board
+<img width="1089" alt="public_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/96534680/eab58040-b8d6-4b15-a56a-bae5216a64ba">
+
+- Private Leader Board 
+<img width="1089" alt="private_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/96534680/b91c30a2-27d8-4b3c-8737-e0ed0c4c5d62">
+
+- [📈 NLP 08조 Project Wrap-Up report 살펴보기](https://github.com/boostcampaitech5/level2_klue-nlp-08/files/11539899/KLUE_Wrap-Up_Report_NLP-08_.pdf)
+
+<br>
+
 ## 🧑🏻‍💻 Team Introduction & Members 
 
 > Team name : 윤슬 [ NLP 08조 ] 
@@ -18,201 +32,150 @@
 
 <br>
 
-## 📐 Github Push Ground Rule
-> 2대 Github Code Manager : 윤상원
+### 🧑🏻‍🔧 Members' Role
+> - 모더레이터 외에도 Github 관리자를 두어 베이스라인 코드의 버전 관리를 원활하게 하고, 같은 분야라도 다른 작업을 진행할 수 있도록 분업을 하여 협업을 진행하였다.
 
-1. git add 이전에 repository에 올라가면 안되는 파일들(데이터)이 `.gitignore`안에 들어있는지 확인하기
-    -  만약 `.gitignore`에 없으면 파일을 추가해주세요. 
-    - 기본적으로 data안에 들어가 있는 모든 파일들은 push 했을 때 remote 주소로 올라가지 않으니 train, test, dev 파일들은 생성시 data폴더를 만들어 해당 폴더 내부에 넣어주시는 걸 추천합니다.
+| 이름 | 역할 |
+| :---: | --- |
+| **`강민재`** | **EDA**(`길이,레이블,토큰, entity 편향 확인`),**ErrorAnalysis,데이터증강**(`단순 복제, classinverse 관계 교체 증강`),**데이터전처리**(`subject,objectentity스페셜 토큰 처리`) |
+| **`김태민`** | **모델 실험**(`Attention layer 추가 실험, Linear/LSTM layer 추가 실험, Loss, Optimizer 실험`), **데이터 전처리**(`Entity Representation – ENTITY, Typed Entity`) |
+| **`김주원`** | **모델 튜닝, 프로젝트 매니저**(`노션관리, 회의 진행`), **EDA, 모델 앙상블**(`Hard Voting, Soft Voting, Weighted Voting`), **Error Analysis**(`Error Analysis 라이브러리 개발`) |
+| **`윤상원`** | **Github 베이스라인 코드 관리**(`코드 리팩토링, 버그 픽스, 코드 버전 컨트롤`), **모델 실험**(`TAPT 적용`), **데이터 전처리**(`Entity Representation – ENTITY, Typed Entity`), **EDA**(`UNK 관련 EDA`), **모델 튜닝** |
+| **`신혁준`** &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | **EDA**(`데이터 heuristic 체크, Label 별 관계 편향 조사`), **데이터 증강** (`동일 entity start_idx, end_idx 교체, Easy Data Augmentation – SR 기반 증강, 클래스 Down Sampling`) |
 
-2. `git commit` 이전에 본인의 branch가 맞는지 확인해주세요. (branch가 본인의 initial과 같은지 확인) 만약 아니라면 아래 명령어를 통해 본인의 브랜치로 반드시 변경해주세요.
+<br>
+
+## 🖥️ Project Introduction 
+
+
+|**프로젝트 주제**| **문장 내 개체간 관계 추출**(KLUE RE): 문장의 단어(Entity)에 대한 속성과 관계를 예측하는NLP Task|
+| :---: | --- |
+|**프로젝트 구현내용**| 1. Hugging Face의 Pretrained 모델과KLUE RE 데이터셋을 활용해 주어진 subject, object entity간의 30개 중 하나의 relation 예측하는 AI 모델 구축 <br> 2. 리더보드 평가지표인 Micro F1-Score와AUPRC 높은 점수에 도달할 수 있도록 데이터 전처리(Entity Representation), 데이터 증강, 모델링 및 하이퍼 파라미터 튜닝을 진행 |
+|**개발 환경**|**• `GPU`**: Tesla V100 서버 4개 (RAM32G) /Tesla V4 (RAM52G) /GeForce RTX 4090 로컬 (RAM 24GB) <br> **• `개발 Tool`**: PyCharm, Jupyter notebook, VS Code [서버 SSH연결], Colab Pro +, wandb|
+|**협업 환경**|**• `Github Repository` :** Baseline 코드 공유 및 버전 관리 <br>**• `Notion` :** KLUE  프로젝트 페이지를 통한 역할분담, 대회 협업 관련Ground Rule 설정, 아이디어 브레인 스토밍, 대회관련 회의 내용 기록 <br>**• `SLACK, Zoom` :** 실시간 대면/비대면 회의|
+
+## 📁 Project Structure
+
+### 📄 디렉토리 및 코드 구조 설명
+> 학습 진행하기 전 증강 데이터 활용시 Augmentation을 학습 전에 진행<br>TAPT 적용시 TAPT 코드를 사전에 먼저 학습시켜 모델에 활용
+
+- Augmentation : 데이터 증강 디렉토리
+  - `augment_train.py` : 데이터 증강 모델 학습
+  - `augment_dataloader.py` : 데이터 증강 모델 학습시 사용하는 dataloader
+  - `augment.py` : 데이터 증강 코드
+- dataset : 학습/테스트 데이터 디렉토리
+  - `train/train.csv` : 학습 데이터 
+  - `test/test_data.csv` : 테스트 데이터
+- config : 모델 학습, 추론, 증강에 관련된 설정을 담고 있는 파일
+  - `augment.yaml` : 증강 관련 설정 파일. 
+  - `default.yaml` : 모델 학습, 추론 관련 설정 파일. 다양한 모델, 하이퍼 파라미터 세팅
+  - `ensemble.yaml` : 앙상블 설정 파일 (Hard Voting, Soft Voting, F1-score Weighted Voting)
+  - `tapt.yaml` : TAPT 관련 설정 파일
+- model_ensemble : 앙상블 실행 파일
+  - `ensemble.py` : 앙상블 실행 코드
+  - `ensemble_model.py` : 앙상블 기법 정의(Hard Voting, Soft Voting, F1-score Weighted Voting)
+  - `utils.py` : 앙상블에 필요한 argmax, softmax 함수 정의
+- models : 
+  - `RBERT.py`: R-BERT 모델 정의 코드
+  - `TAEMIN_CUSTOM_RBERT.py`: R-BERT 단순화 모델 정의 코드
+  - `TAEMIN_R_RoBERTa.py`: R-Roberta 모델 파일
+  - `TAEMIN_RoBERTa_LSTM.py`: Roberta-LSTM 모델 정의 코드
+  - `TAEMIN_TOKEN_ATTENTION_BERT.py`: BERT + CLS Token Attention 모델 정의 코드
+  - `TAEMIN_TOKEN_ATTENTION_RoBERTa.py`: Roberta + CLS Token Attention 모델 정의 코드
+  -  `model_base.py`: base 모델 정의 코드(FC Layer, RobertaClassificationHead, RobertaPooler)
+  -  `utils.py`:
+- modules : 모델에 쓰이는 dataset, loss 등 세부적인 모듈 정의 디렉토리
+  - `datasets.py `: 모델 별 dataset 생성 코드
+  - `losses.py` : Focal loss 코드
+  - `optimizers.py` : AdamW, Adam, SGD, Adabelief 등 Optimizer 정의 코드
+  - `preprocess.py` : 데이터 파싱 및 전처리 코드
+  - `schedulers.py` : StepLR, CosinLR 정의 코드
+  - `tokenize.py` : 토크나이징 및 Entity Representation 코드
+  - `utils.py` : micro_f1, config_parser, confusion_matrix 코드
+- pickle : 숫자 label - 스트링 label 변환 피클 파일
+  - `dict_label_to_num.pkl` : 숫자 label을 스트링 label로 변환하는 피클 파일
+  - `dict_num_to_label.pkl `: 스트링 label을 숫자 label로 변환하는 피클 파일
+- prediction : 모델 추론 저장 디렉토리
+- tapt : 
+  - `dataset.py` : TAPT 데이터 로더 코드
+  - `tapt.py` : TAPT 학습 코드
+- .gitignore : gitignore
+- `dataloader.py` : 모델 data loader 코드
+- `inference.py` : 모델 추론 코드
+- `model.py` : pytorch-lightning을 이용한 기본 모델 정의 코드
+- `requirements.txt` : 환경 설정 관련 text파일
+- `train.py` : 모델 학습 코드
+- `wandb_tuning.py` : 여러개의 하이퍼 파라미터를 이용하여 wandb로 튜닝
 
 ```bash
-# git checkout [본인브랜치 이름(이니셜)]
-# 예시 
-git switch -c KJW
+📦level2_klue-nlp-08
+ ┣ augmentation
+ ┃ ┣ augment.py
+ ┃ ┣ augment_dataloader.py
+ ┃ ┣ augment_train.py
+ ┃ ┗ utils.py
+ ┣ config
+ ┃ ┣ augment.yaml
+ ┃ ┣ default.yaml
+ ┃ ┣ ensemble.yaml
+ ┃ ┗ tapt.yaml
+ ┣ dataset
+ ┃ ┣ test
+ ┃ ┃ ┗ test_data.csv
+ ┃ ┣ train
+ ┃ ┃ ┗ train.csv
+ ┣ model_ensemble
+ ┃ ┣ ensemble.py
+ ┃ ┣ ensemble_model.py
+ ┃ ┗ utils.py
+ ┣ models
+ ┃ ┣ RBERT.py
+ ┃ ┣ TAEMIN_CUSTOM_RBERT.py
+ ┃ ┣ TAEMIN_R_RoBERTa.py
+ ┃ ┣ TAEMIN_RoBERTa_LSTM.py
+ ┃ ┣ TAEMIN_TOKEN_ATTENTION_BERT.py
+ ┃ ┣ TAEMIN_TOKEN_ATTENTION_RoBERTa.py
+ ┃ ┣ model_base.py
+ ┃ ┗ utils.py
+ ┣ modules
+ ┃ ┣ datasets.py
+ ┃ ┣ losses.py
+ ┃ ┣ optimizers.py
+ ┃ ┣ preprocess.py
+ ┃ ┣ schedulers.py
+ ┃ ┣ tokenize.py
+ ┃ ┗ utils.py
+ ┣ pickle
+ ┃ ┣ dict_label_to_num.pkl
+ ┃ ┗ dict_num_to_label.pkl
+ ┣ prediction
+ ┣ tapt
+ ┃ ┣ dataset.py
+ ┃ ┗ tapt.py
+ ┣ wandb
+ ┣ .gitignore
+ ┣ README.md
+ ┣ dataloader.py
+ ┣ inference.py
+ ┣ model.py
+ ┣ requirements.txt
+ ┣ train.py
+ ┗ wandb_tuning.py
 ```
-```bash
-# git checkout [본인브랜치 이름(이니셜)]
-# 예시 
-git switch KJW
-```
-
-3. **개인 Branch Commit 관련 Rule**  : `git commit & push`는 코드의 유의미한 변화가 있을 때 마다 진행합니다. 아래 양식을 보고 `코드 수정 내역(추가/변경/삭제)`이 들어가도록 commit 해주시면 됩니다. 처음에는 번거로울 수도 있지만, 협업을 위한 작업이니 변경시 commit을 꼭 부탁드립니다!
-
-```bash
-# git commit -am Upload/Update/Remove[코드 수정 사항][날짜]
-# 예시 : 
-git commit -am "Update Config Parser 23.04.11 18:50"
-```
-
-## 🗓️ 세부 일정 
-
-- 프로젝트 전체 기간 (3주) : 5월 2일 (화) 10:00 ~ 5월 18일 (목) 19:00
-
-  - 팀 병합 기간 : 5월 3일 (수) 16:00 까지
-
-    - 팀명 컨벤션 : 도메인팀번호(2자리)조 / ex) CV_03조, NLP_02조, RecSys_08조
-
-  - 리더보드 제출 오픈 : 5월 3일 (수) 10:00
-
-  - 리더보드 제출 마감 : 5월 18일 (목) 19:00
-
-  - 최종 리더보드 (Private) 공개 : 5월 18일 (목) 20:00
-
-  - GPU 서버 할당 : 5월 2일 (화) 10:00
-
-  - GPU 서버 회수 : 5월 19일 (금) 16:00
-
-## 🖥️ 프로젝트 소개
-
-문장 속에서 단어간에 관계성을 파악하는 것은 의미나 의도를 해석함에 있어서 많은 도움을 줍니다.
-
-그림의 예시와 같이 요약된 정보를 사용해 QA 시스템 구축과 활용이 가능하며, 이외에도 요약된 언어 정보를 바탕으로 효율적인 시스템 및 서비스 구성이 가능합니다.
-![image](https://user-images.githubusercontent.com/81630351/236123095-d45bf48d-00c2-42c5-94a5-443f0af08132.png)
-
-> `관계 추출(Relation Extraction)`은 문장의 단어(Entity)에 대한 속성과 관계를 예측하는 문제입니다. 관계 추출은 지식 그래프 구축을 위한 핵심 구성 요소로, 구조화된 검색, 감정 분석, 질문 답변하기, 요약과 같은 자연어처리 응용 프로그램에서 중요합니다. 비구조적인 자연어 문장에서 구조적인 triple을 추출해 정보를 요약하고, 중요한 성분을 핵심적으로 파악할 수 있습니다.
-
-이번 대회에서는 문장, 단어에 대한 정보를 통해 ,문장 속에서 단어 사이의 관계를 추론하는 모델을 학습시킵니다. 이를 통해 우리의 인공지능 모델이 단어들의 속성과 관계를 파악하며 개념을 학습할 수 있습니다. 우리의 모델이 정말 언어를 잘 이해하고 있는 지, 평가해 보도록 합니다.
-
-```bash
-sentence: 오라클(구 썬 마이크로시스템즈)에서 제공하는 자바 가상 머신 말고도 각 운영 체제 개발사가 제공하는 자바 가상 머신 및 오픈소스로 개발된 구형 버전의 온전한 자바 VM도 있으며, GNU의 GCJ나 아파치 소프트웨어 재단(ASF: Apache Software Foundation)의 하모니(Harmony)와 같은 아직은 완전하지 않지만 지속적인 오픈 소스 자바 가상 머신도 존재한다.
-subject_entity: 썬 마이크로시스템즈
-object_entity: 오라클
-
-relation: 단체:별칭 (org:alternate_names)
-```
-- **`input`**: sentence, subject_entity, object_entity의 정보를 입력으로 사용 합니다.
-
-- **`output`**: relation 30개 중 하나를 예측한 pred_label, 그리고 30개 클래스 각각에 대해 예측한 확률 probs을 제출해야 합니다! 클래스별 확률의 순서는 주어진 dictionary의 순서에 맞게 일치시켜 주시기 바랍니다.
-
-## 💯 평가 방법 : 
-
-KLUE-RE evaluation metric을 그대로 재현했습니다.
-
-1) no_relation class를 제외한 micro F1 score
-
-2) 모든 class에 대한 area under the precision-recall curve (AUPRC)
-
-2가지 metric으로 평가하며, micro F1 score가 우선시 됩니다.
-
-### Micro F1 score
-
-- micro-precision과 micro-recall의 조화 평균이며, 각 샘플에 동일한 importance를 부여해, 샘플이 많은 클래스에 더 많은 가중치를 부여합니다. 데이터 분포상 많은 부분을 차지하고 있는 no_relation class는 제외하고 F1 score가 계산 됩니다.
-
-![image](https://user-images.githubusercontent.com/81630351/236133515-3bad534f-cf01-4234-8b59-df1e9a74b4d5.png)
 
 
-### AUPRC
+<br>
 
-- x축은 Recall, y축은 Precision이며, 모든 class에 대한 평균적인 AUPRC로 계산해 score를 측정 합니다. imbalance한 데이터에 유용한 metric 입니다.
-![image](https://user-images.githubusercontent.com/81630351/236133318-2c4fca5b-c14e-49bc-bd68-90f4b9af8b04.png)
+## ⚙️ Architecture
 
-- 위 그래프의 예시는 scikit-learn의 Precision-Recall 그래프의 예시 입니다. 그림의 예시와 같이 class 0, 1, 2의 area(면적 값)을 각각 구한 후, 평균을 계산한 결과를 AUPRC score로 사용합니다.
-## 📁 프로젝트 구조
-
-- Baseline 디렉토리 구조 
-```bash
-├── code
-│   ├── __pycache__
-│   ├── best_model
-│   ├── logs
-│   ├── prediction
-│   └── results
-└── dataset
-    ├── test
-    └── train
-```
-- Baseline 파일 포함 디렉토리 구조
-```bash 
-├── code
-│   ├── __pycache__
-│   │   └── load_data.cpython-38.pyc
-│   ├── best_model
-│   ├── dict_label_to_num.pkl
-│   ├── dict_num_to_label.pkl
-│   ├── inference.py
-│   ├── load_data.py
-│   ├── logs
-│   ├── prediction
-│   │   └── sample_submission.csv
-│   ├── requirements.txt
-│   ├── results
-│   └── train.py
-└── dataset
-    ├── test
-    │   └── test_data.csv
-    └── train
-        └── train.csv
-```
-### code 설명
-
-- **train.py**
-  - baseline code를 학습시키기 위한 파일입니다.
-  - 저장된 model관련 파일은 results 폴더에 있습니다.
-
-- **inference.py**
-  - 학습된 model을 통해 prediction하며, 예측한 결과를 csv 파일로 저장해줍니다.
-  - 저장된 파일은 prediction 폴더에 있습니다.
-  - sample_submission.csv를 참고해 같은 형태로 제출용 csv를 만들어 주시기 바랍니다.
-
-- **load_data.py** 
-  - baseline code의 전처리와 데이터셋 구성을 위한 함수들이 있는 코드입니다.
-
-- **logs**
-  - 텐서보드 로그가 담기는 폴더 입니다.
-
-- **prediction**
-  - inference.py 를 통해 model이 예측한 정답 submission.csv 파일이 저장되는 폴더 입니다.
-
-- **results**
-  - train.py를 통해 설정된 step 마다 model이 저장되는 폴더 입니다.
-
-- **best_model**
-  - 학습중 evaluation이 best인 model이 저장 됩니다.
-
-- **dict_label_to_num.pkl**
-  - 문자로 되어 있는 label을 숫자로 변환 시킬 dictionary 정보가 저장되어 있습니다.
-
-- **dict_num_to_label.pkl**
-  - 숫자로 되어 있는 label을 원본 문자로 변환 시킬 dictionary 정보가 저장되어 있습니다.
-  - custom code를 만드실 때도, 위 2개의 dictionary를 참고해 class 순서를 지켜주시기 바랍니다.
-
-### dataset 설명
-
-- **train**
-  - train 폴더의 train.csv 를 사용해 학습 시켜 주세요.
-  - evaluation data가 따로 제공되지 않습니다. 적절히 train data에서 나눠 사용하시기 바랍니다.
-
-- **test**
-  - test_data.csv를 사용해 submission.csv 파일을 생성해 주시기 바랍니다.
-  - 만들어진 submission.csv 파일을 리더보드에 제출하세요
-
-## 📏 대회 룰
-
-- **[대회 참여 제한]** NLP 도메인을 수강하고 있는 캠퍼에 한하여 리더보드 제출이 가능합니다.
-
-- **[팀 결성 기간]** 팀 결성은 대회 시작 2일차 화요일 오후 4시까지 필수로 진행합니다. 팀이 완전히 결성되기 전까지는 리더보드 제출이 불가합니다.
-
-- **[일일 제출횟수]** 일일 제출횟수는 팀 단위 10회로 제한합니다. (일일횟수 초기화는 자정에 진행)
-
-- **[외부 데이터셋 규정]** 본 대회에서는 **외부 데이터셋 사용**을 금지합니다. 학습에 사용될 수 있는 데이터는 제공되는 train.csv 한 가지 입니다
-
-- **[평가 데이터 활용]** <U>**test_data.csv에 대한 Pseudo labeling을 금지합니다. test_data.csv을 이용한 TAPT(Task-Adaptive Pretraining)는 허용 합니다.**</U> 단 평가 데이터를 <U>**눈으로 직접 판별 후 라벨링 하는 행위**</U> 는 금지합니다. 제공된 학습 데이터을 사용한 데이터 augumentation 기법이나, 생성모델을 활용한 데이터 생성 등, 학습 데이터를 활용한 행위는 허용 됩니다.
-
-- **[데이터셋 저작권]** 대회 데이터셋은 **'캠프 교육용 라이선스'** 아래 사용 가능합니다. **저작권 관련 세부 내용은 부스트코스 공지사항을 반드시 참고 해주세요.**
-
-## AI Stages 대회 공통사항
-
-- **[Private Sharing 금지]** 비공개적으로 다른 팀과 코드 혹은 데이터를 공유하는 것은 허용하지 않습니다.코드 공유는 반드시 대회 게시판을 통해 공개적으로 진행되어야 합니다.
-
-- **[최종 결과 검증 절차]** 리더보드 상위권의 경우 추후 최종 코드 검수가 진행됩니다. 반드시 결과가 재현될 수 있도록 최종 코드를 정리해 주세요! 부정행위가 의심될 경우에는 결과 재현을 요구할 수 있으며, 재현이 어려울 경우 리더보드 순위표에서 제외될 수 있습니다.
-
-- **[공유 문화]** 공개적으로 토론 게시판을 통해 모델링에 대한 아이디어 혹은 작성한 코드를 공유하실 것을 권장 드립니다. 공유 문화를 통해서 더욱 뛰어난 모델을 대회 참가자 분들과 같이 개발해 보시길 바랍니다.
-
-- **[대회 참가 기본 매너]** 좋은 대회 문화 정착을 위해 아래 명시된 행위는 지양합니다.
-  - 대회 종료를 앞두고 (3일 전) 높은 점수를 얻을 수 있는 전체 코드를 공유하는 행위
-  - 타 참가자와 토론이 아닌 단순 솔루션을 캐내는 행위
+|분류|내용|
+|:--:|--|
+|모델|[`klue/bert-base`](https://huggingface.co/klue/bert-base), [`klue/roberta-large`](https://huggingface.co/klue/roberta-large), [`ainize/klue-bert-base-re`](https://huggingface.co/ainize/klue-bert-base-re) `HuggingFace Transformer Model`+`Pytorch Lightning`활용 + Attention Layer or FC Layer|
+|전처리|• `Entity Representation` : Entity marker / Typed entity marker / SUB,OBJ marker / punct(한글) 등 다양한 entity representation을 적용하여 최적의 성능을 내는 entity representation 적용 |• Evaluation 단계의 피어슨 상관 계수를 일차적으로 비교<br>• 기존 SOTA 모델과 성능이 비슷한 모델을 제출하여 public 점수를 확인하여 이차 검증|
+|데이터|• `raw data` : 기본 train 데이터 32470개 <br>• `증강데이터` : MLM kue/roberta-large 모델을 활용하여 증강데이터를 만들고 uniform 분포를 만들어 총 53873개|
+|검증 전략|• 만들었던 모델의 Validation 데이터를 inference에 Micro F1-Score와 AUPRC Score 비교 <br>• 최종적으로 리더보드에 제출하여 모델 성능 검증|
+|앙상블 방법|• Entity Represenatation과 모델기법, 증강데이터 중 가장 성능이 좋은 모델 3개를 선정하여 soft voting 앙상블을 진행
+|모델 평가 및 개선 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|. MLM 모델을 사용하여 데이터 증강을 실시하여 label imbalance 문제를 해결한다. 또한, Entity Representation을 활용하여 데이터를 전처리하고 HuggingFace 모델에 Attention layer와 FC Layer등을 추가하는 등 다양한 기법을 활용하여 모델 성능을 개선한다.|
 
 <br>
 
@@ -225,12 +188,21 @@ pip install -r requirements.txt
 ```
 
 ### ⌨️ How To Train 
+
 ```bash
-python train.py
+# 데이터 증강 [optional]
+python3 augmentation/augment.py --config=config/augment.yaml
+python3 augmentation/augment_train.py --config=config/augment.yaml
+# TAPT 학습 모델 생성 [optional]
+python3 tapt/tapt.py --config=config/tapt.yaml
+# train.py 코드 실행 : 모델 학습 진행
+python3 train.py --config=config/default.yaml
 ```
 ### ⌨️ How To Infer output.csv
-```bash
-python inference.py --model_dir = ‘모델 저장 경로’
-#ex) python inference.py --model_dir=./results/checkpoint-500 
-```
 
+```bash
+# 모델 예측 진행
+python3 inference.py --config=config/default.yaml
+# 앙상블 진행 [config를 통해서 option 선택]
+python3 model_ensemble/ensemble.py --config=config/ensemble.yaml
+```
