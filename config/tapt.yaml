@@ -1,0 +1,10 @@
+model_name: klue/roberta-large
+
+train:
+  num_train_epoch: 1
+  learning_rate: 5e-6
+  train_batch_size: 16
+
+path:
+  train: ./dataset/train/train.csv
+  test: ./dataset/test/test_data.csv
