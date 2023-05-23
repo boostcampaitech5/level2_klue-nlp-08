@@ -1,13 +1,12 @@
 import pandas as pd
 import pytorch_lightning as pl
+from modules.datasets import make_dataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
-from modules.datasets import make_dataset
-
 
 class ERDataModule(pl.LightningDataModule):
-    def __init__(self, config, tokenizer : AutoTokenizer, wandb_batch_size : int =None):
+    def __init__(self, config, tokenizer: AutoTokenizer, wandb_batch_size: int = None):
         super().__init__()
         self.train_dataset_dir = config["path"]["train"]
         self.dev_dataset_dir = config["path"]["dev"]
@@ -24,18 +23,40 @@ class ERDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str):
         if stage == "fit":
-            df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(self.dev_dataset_dir)
+            df_train, df_val = pd.read_csv(self.train_dataset_dir), pd.read_csv(
+                self.dev_dataset_dir
+            )
 
-            self.train_data = make_dataset(dataset_type=self.dataset_type, df=df_train, tokenizer=self.tokenizer, tokenizer_max_len=self.tokenizer_max_len, state="train")
-            self.val_data = make_dataset(dataset_type=self.dataset_type, df=df_val, tokenizer=self.tokenizer, tokenizer_max_len=self.tokenizer_max_len, state="val")
+            self.train_data = make_dataset(
+                dataset_type=self.dataset_type,
+                df=df_train,
+                tokenizer=self.tokenizer,
+                tokenizer_max_len=self.tokenizer_max_len,
+                state="train",
+            )
+            self.val_data = make_dataset(
+                dataset_type=self.dataset_type,
+                df=df_val,
+                tokenizer=self.tokenizer,
+                tokenizer_max_len=self.tokenizer_max_len,
+                state="val",
+            )
 
         elif stage == "test":
             df_test = pd.read_csv(self.test_dataset_dir)
 
-            self.test_data = make_dataset(dataset_type=self.dataset_type, df=df_test, tokenizer=self.tokenizer, tokenizer_max_len=self.tokenizer_max_len, state="test")
+            self.test_data = make_dataset(
+                dataset_type=self.dataset_type,
+                df=df_test,
+                tokenizer=self.tokenizer,
+                tokenizer_max_len=self.tokenizer_max_len,
+                state="test",
+            )
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_data, batch_size=self.train_batch_size, shuffle = True)
+        return DataLoader(
+            self.train_data, batch_size=self.train_batch_size, shuffle=True
+        )
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(self.val_data, batch_size=self.val_batch_size)
