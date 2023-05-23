@@ -2,21 +2,19 @@ from datetime import datetime
 
 import pytorch_lightning as pl
 import pytz
+import wandb
+from dataloader import ERDataModule
+from model import ERNet
+from modules.utils import config_parser
 from omegaconf import OmegaConf
 from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 from transformers import AutoTokenizer
 
-import wandb
-from dataloader import ERDataModule
-from model import ERNet
-from modules.utils import config_parser
-
 if __name__ == "__main__":
     config = config_parser()
 
     pl.seed_everything(config["seed"], workers=True)
-
 
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)

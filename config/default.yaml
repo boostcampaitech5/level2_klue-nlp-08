@@ -65,10 +65,7 @@ wandb :
 
 path:
   model : /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-15 11.12.37/epoch=2-val_micro_f1=90.60.ckpt
-  # train : ./dataset/train/new_train.csv
-  # dev : ./dataset/train/new_dev.csv
-  # train : ./dataset/train/sr_idx_other_swap_source_train.csv
-  train : ./dataset/train/sr_idx_other_source_train.csv
-  dev : ./dataset/train/forbidden_val.csv
+  train : ./dataset/train/new_train.csv
+  dev : ./dataset/train/new_dev.csv
   test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue-bert-base

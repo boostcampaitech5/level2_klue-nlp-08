@@ -12,4 +12,3 @@ __pycache__/
 checkpoint/*
 wandb/*
 confusion_matrix/*
-my_code/*
