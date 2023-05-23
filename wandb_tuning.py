@@ -17,6 +17,7 @@ if __name__ == "__main__":
 
     pl.seed_everything(config["seed"], workers=True)
 
+
     MODEL_NAME = config["model"]["model_name"]
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 

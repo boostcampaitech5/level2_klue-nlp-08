@@ -1,0 +1,27 @@
+seed : 42
+
+data : 
+  train_batch_size : 16
+  val_batch_size : 16
+  test_batch_size : 16
+  tokenizer_max_len : 128
+
+train :
+  num_train_epoch : 3
+  weight_decay : 0.01
+  learning_rate : 5e-5
+  lr_scheduler : exponentialLR
+
+model :
+  model_name : klue/bert-base
+
+wandb :
+  project_name : klue-bert-base_tuning
+
+path:
+  model : /opt/ml/level2_klue-nlp-08/checkpoint/klue_bert-base/2023-05-11 01.42.13/epoch=2-val_micro_f1=62.03.ckpt
+  train : ./dataset/train/new_train.csv
+  dev : ./dataset/train/new_dev.csv
+  test : ./dataset/test/test_data.csv
+
+  

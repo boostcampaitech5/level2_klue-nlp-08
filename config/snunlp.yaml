@@ -1,0 +1,27 @@
+seed : 42
+
+data : 
+  train_batch_size : 16
+  val_batch_size : 16
+  test_batch_size : 16
+  tokenizer_max_len : 128
+
+train :
+  num_train_epoch : 7
+  weight_decay : 0.01
+  learning_rate : 5e-5
+  lr_scheduler : stepLR
+
+model :
+  model_name : snunlp/KR-ELECTRA-discriminator
+
+wandb :
+  project_name : snunlp_KR-ELECTRA-discriminator_tuning
+
+path:
+  model : /opt/ml/level2_klue-nlp-08/model/klue/bert-base/2023-05-08 14:47:42.317246/epoch=2-step=4872.ckpt
+  train : ./dataset/train/new_train.csv
+  dev : ./dataset/train/new_dev.csv
+  test : ./dataset/test/test_data.csv
+
+  

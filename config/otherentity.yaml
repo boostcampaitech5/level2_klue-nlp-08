@@ -1,10 +1,10 @@
 seed : 42
 
-data :
+data : 
   train_batch_size : 16
   val_batch_size : 16
   test_batch_size : 16
-  tokenizer_max_len : 128
+  tokenizer_max_len : 256
 
 train :
   num_train_epoch : 3
@@ -21,13 +21,13 @@ train :
   loss : cross_entropy  #[cross_entropy, focal_loss]
 
   # modules/datasets.py
-  dataset_type : ainize  #[default, punct, type_entity, ainize]
+  dataset_type : ainize  #[default , punct, type_entity, ainize] 
 
 model :
   # models/utils.py
-  model_name : ainize/klue-bert-base-re
+  model_name : klue/bert-base
   #[
-  # TAEMIN_TOKEN_ATTENTION_RoBERTa,
+  # TAEMIN_TOKEN_ATTENTION_RoBERTa, 
   # TAEMIN_TOKEN_ATTENTION_BERT,
   # TAEMIN_RoBERTa_LSTM,
   # TAEMIN_R_RoBERTa,
@@ -40,35 +40,33 @@ wandb :
   project_name : XXXX
   name : klue-bert-sweep
   method: grid
-  parameters :
-    epochs :
-      values :
+  parameters : 
+    epochs : 
+      values : 
       - 3
       - 4
       - 5
       - 10
     batch_size:
-      values:
+      values: 
       - 8
       - 16
       - 32
     learning_rate:
-      values:
-      - 0.00002
-      - 0.00003
+      values: 
+      - 0.00002 
+      - 0.00003 
       - 0.00005
     weight_decay:
-      values:
+      values: 
       - 0.0
       - 0.01
       - 0.1
 
 path:
   model : /opt/ml/level2_klue-nlp-08/checkpoint/ainize_klue-bert-base-re/2023-05-15 11.12.37/epoch=2-val_micro_f1=90.60.ckpt
-  # train : ./dataset/train/new_train.csv
-  # dev : ./dataset/train/new_dev.csv
-  # train : ./dataset/train/sr_idx_other_swap_source_train.csv
-  train : ./dataset/train/sr_idx_other_source_train.csv
+  train : ./dataset/train/other_entity_train.csv
   dev : ./dataset/train/forbidden_val.csv
   test : ./dataset/test/test_data.csv
   confusion_matrix : ./confusion_matrix/klue-bert-base
+  
