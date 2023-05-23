@@ -9,7 +9,7 @@ from modules.tokenize import (
     tokenized_dataset_type_entity_token_v2,
     tokenized_dataset_type_punct_token,
 )
-from modules.utils import label_to_num, make_index_ids_roberta
+from modules.utils import label_to_num, make_index_ids_roberta, make_ner
 from transformers import AutoTokenizer
 
 

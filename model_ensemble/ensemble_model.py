@@ -162,7 +162,7 @@ class Ensemble:
         origin_label = []
         with open(
             os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
+                os.path.dirname(os.path.abspath(os.path.dirname(__file__))),
                 "pickle",
                 "dict_num_to_label.pkl",
             ),
