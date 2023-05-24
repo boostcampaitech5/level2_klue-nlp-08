@@ -11,10 +11,10 @@
 ![public_7th](https://img.shields.io/static/v1?label=Public%20LB&message=7th&color=black&logo=naver&logoColor=white") 
 ![private_8th](https://img.shields.io/static/v1?label=Private%20LB&message=8th&color=black&logo=naver&logoColor=white")
 - Public Leader Board
-<img width="1089" alt="public_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/96534680/eab58040-b8d6-4b15-a56a-bae5216a64ba">
+<img width="1089" alt="public_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/81630351/0347231e-97ed-4329-bdf3-f0b23d51fbc2">
 
 - Private Leader Board 
-<img width="1089" alt="private_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/96534680/b91c30a2-27d8-4b3c-8737-e0ed0c4c5d62">
+<img width="1089" alt="private_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/81630351/25b8b164-7cd5-44dc-8c3b-9649a79d1bc7">
 
 - [📈 NLP 08조 Project Wrap-Up report 살펴보기](https://github.com/boostcampaitech5/level2_klue-nlp-08/files/11539899/KLUE_Wrap-Up_Report_NLP-08_.pdf)
 
@@ -54,6 +54,16 @@
 |**프로젝트 구현내용**| 1. Hugging Face의 Pretrained 모델과KLUE RE 데이터셋을 활용해 주어진 subject, object entity간의 30개 중 하나의 relation 예측하는 AI 모델 구축 <br> 2. 리더보드 평가지표인 Micro F1-Score와AUPRC 높은 점수에 도달할 수 있도록 데이터 전처리(Entity Representation), 데이터 증강, 모델링 및 하이퍼 파라미터 튜닝을 진행 |
 |**개발 환경**|**• `GPU`**: Tesla V100 서버 4개 (RAM32G) /Tesla V4 (RAM52G) /GeForce RTX 4090 로컬 (RAM 24GB) <br> **• `개발 Tool`**: PyCharm, Jupyter notebook, VS Code [서버 SSH연결], Colab Pro +, wandb|
 |**협업 환경**|**• `Github Repository` :** Baseline 코드 공유 및 버전 관리 <br>**• `Notion` :** KLUE  프로젝트 페이지를 통한 역할분담, 대회 협업 관련Ground Rule 설정, 아이디어 브레인 스토밍, 대회관련 회의 내용 기록 <br>**• `SLACK, Zoom` :** 실시간 대면/비대면 회의|
+
+<br>
+
+## 🗓️ Project Procedure
+
+> *아래는 저희 프로젝트 진행과정을 담은 Gantt차트 입니다. 
+
+<img width="959" alt="Screenshot 2023-05-24 at 3 31 48 PM" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/81630351/324e73cd-a16f-4a53-a76f-e039f5698360">
+
+<br>
 
 ## 📁 Project Structure
 
