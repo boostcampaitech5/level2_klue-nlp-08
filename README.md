@@ -8,7 +8,8 @@
 
 
 ## 🎖️Project Leader Board 
-![public_7th](https://img.shields.io/static/v1?label=Public%20LB&message=7th&color=black&logo=naver&logoColor=white") ![private_8th](https://img.shields.io/static/v1?label=Private%20LB&message=8th&color=black&logo=naver&logoColor=white">)
+![public_7th](https://img.shields.io/static/v1?label=Public%20LB&message=7th&color=black&logo=naver&logoColor=white") 
+![private_8th](https://img.shields.io/static/v1?label=Private%20LB&message=8th&color=black&logo=naver&logoColor=white")
 - Public Leader Board
 <img width="1089" alt="public_leader_board" src="https://github.com/boostcampaitech5/level2_klue-nlp-08/assets/96534680/eab58040-b8d6-4b15-a56a-bae5216a64ba">
 
