@@ -25,7 +25,7 @@ class RobertaClassificationHead(nn.Module):
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
-        self.dropout = nn.Dropout(classifier_dropout)
+        self.dropout = nn.Dropout(0.2)
         self.out_proj = nn.Linear(config.hidden_size, 30)
 
     def forward(self, features,add_features, **kwargs):
@@ -38,8 +38,9 @@ class RobertaClassificationHead(nn.Module):
         return x
         
 class output_class:
-    def __init__(self,output):
+    def __init__(self,output=None,ner_outputs=None):
         self.logits = output
+        self.ner_logits = ner_outputs
 
 class FCLayer(nn.Module):
     def __init__(self, input_dim, output_dim, dropout_rate=0.0, use_activation=True):

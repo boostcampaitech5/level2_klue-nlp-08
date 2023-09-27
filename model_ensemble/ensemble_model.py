@@ -1,28 +1,11 @@
 import os
 import pickle
-import sys
 from typing import List
 
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
-
-
-def list_argmax(array):
-    min_array = -sys.maxsize
-    idx = 0
-    for i in range(len(array)):
-        if min_array < array[i]:
-            min_array = array[i]
-            idx = i
-    return idx, min_array
-
-
-def softmax(score):
-    exp = np.exp(score)
-    sum_exp = np.sum(exp)
-    exp_score = exp / sum_exp
-    return exp_score
+from utils import list_argmax, softmax
 
 
 class Ensemble:
@@ -45,7 +28,7 @@ class Ensemble:
         for i in range(self.df_number):
             self.ensemble[f"probs_candidate{i+1}"] = self.data_list[i]["probs"]
 
-        for i in tqdm(range(len(self.ensemble)), desc="Making Ensemble"):
+        for i in tqdm(range(len(self.ensemble)), desc="Making Soft Voting Ensemble"):
             probs = []
             new_prob = [0] * 30
 
@@ -179,7 +162,7 @@ class Ensemble:
         origin_label = []
         with open(
             os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
+                os.path.dirname(os.path.abspath(os.path.dirname(__file__))),
                 "pickle",
                 "dict_num_to_label.pkl",
             ),
